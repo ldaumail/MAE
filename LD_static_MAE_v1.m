@@ -1,4 +1,4 @@
-function LD_dynamic_MAE_v9(subject, session, debug)
+function LD_static_MAE_v1(subject, session, debug)
 
 %In this version, we add multiple velocities
 % subject = 'sub-01'; 
@@ -6,7 +6,7 @@ function LD_dynamic_MAE_v9(subject, session, debug)
 % debug = 0;
 
 
-ex.version = 'v9';
+ex.version = 'v1';
 %%%% resolution 
 if debug == 1
 
@@ -54,56 +54,48 @@ ex.root = pwd;
 ex.date = datestr(now,30);
 
 
+ex.stim.backgroundLum = [108.3750  108.3750  108.3750]; %repmat(min(min(squeeze(ex.rectSWave(1,1,:,:)),[],1)), [1,3]);
 
 %%%% 2D sine wave grating inducers properties
 ex.stim.spatialFreqDeg = 0.5/2;   % cycles per degree of visual angle
 ex.stim.orientation = [180]; %[90 180];                                                % in degrees
 ex.stim.gaborHDeg = 12;                                                   % in degrees of visual angle
 ex.stim.gaborWDeg = 6; 
-ex.stim.distFromFixDeg = 2+ex.stim.gaborWDeg/2;%3;%2; %1.5 %each grating edge 1.5 deg horizontal away from fixation (grating center 6 deg away)
-ex.stim.luminanceRange = [0.03 0.03 0.15 0.15 0.7 0.7]; %0.15;%% in %, maybe?? %here the number of stimulus contrast levels is the number of different conditions
-ex.stim.contrastMultiplicator = ex.stim.luminanceRange./2;  % for sine wave
-ex.stim.contrastOffset = [0.2+0.7/2 0.2+0.7/2 0.2+0.7/2 0.2+0.7/2 0.2+0.7/2 0.2+0.7/2];%0.425+ex.stim.contrastMultiplicator; %.5 corresponds to 255/2 = 127.5 , 0.425*255 = 108.375, 0.35*255 = 89.25;                                  % for procedural gabor
+ex.stim.distFromFixDeg = 2;%3;% %1.5 %each grating edge 1.5 deg horizontal away from fixation (grating center 6 deg away)
+ex.stim.luminanceRange = 0.15; %0.15;%% in %, maybe?? %here the number of stimulus contrast levels is the number of different conditions
+ex.stim.contrastMultiplicator = ex.stim.luminanceRange/2;  % for sine wave
+ex.stim.contrastOffset = [.5 0.425 0.35]; %.5 corresponds to 255/2 = 127.5 , 0.425*255 = 108.375, 0.35*255 = 89.25;                                  % for procedural gabor
 ex.stim.maxLum = 255*(ex.stim.contrastOffset+ex.stim.contrastMultiplicator);
 ex.stim.minLum = 255*(ex.stim.contrastOffset-ex.stim.contrastMultiplicator);
 ex.stim.contrast = (ex.stim.maxLum-ex.stim.minLum)./(ex.stim.maxLum+ex.stim.minLum);
 
-ex.stim.backgroundLum = [136.425 136.425 136.425; 140.25 140.25 140.25; 121.125 121.125 121.125; 140.25 140.25 140.25; 51 51 51; 140.25 140.25 140.25];%[108.3750  108.3750  108.3750]; %repmat(min(min(squeeze(ex.rectSWave(1,1,:,:)),[],1)), [1,3]);
-%% Background Luminance levels for each phantom condition
-% 255*(0.55-0.03/2) =136.4250
-% 255*(0.55-0.15/2) =121.125
-% 255*(0.55-0.7/2) = 51
-%% Background Luminance level for phantom control conditions
-%0.55*255 = 140.25
-
 %%%% sine wave grating timing (within block scale)
 ex.initialFixation = 6;        % in seconds
 ex.finalFixation = 2;          % in seconds
-ex.blockLength = 8; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
-ex.testLength = 1;% in seconds
+ex.blockLength = 16; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
+ex.testLength = 3;% in seconds
 ex.ITI1 = 3;
 ex.ITI2 = 1;% in seconds
 ex.ITI3 = 9; %+9 sec break every 10 trial
 % ex.betweenBlocks = 2;          % in seconds
 ex.flipsPerSec = 60;  % 60;         % number of phase changes we want from the visual stimulus, and thus the number of times we want to change visual stimulation on the screen
 ex.flipWin = 1/ex.flipsPerSec;         % in seconds then actually in 1 sec the stimuli will change 12 times 
-ex.stim.cycPerSec = 2; %drifting speed in cycles of grating per sec
+ex.stim.cycPerSec = 4; %drifting speed in cycles of grating per sec
 ex.stim.motionRate = 360*ex.stim.cycPerSec; %drifting speed in degrees of visual angle per sec
 ex.stim.dphase = ex.stim.motionRate/ex.flipsPerSec; %degrees per flip
 
 
-%%%% Test stimulus: counterphasing grating
+%%%% Test stimulus
 % ex.test.spatialFreqDeg = 2;
-ex.test.luminanceRange = 0.1; %0.2; %0.03;%linspace(0.01,0.20,10);%[0.05, 0.10, 0.15];                                                 % in %, maybe?? %here the number of stimulus contrast levels is the number of different conditions
+ex.test.luminanceRange = 0.04;%0.15;%0.1;                                                  % in %, maybe?? %here the number of stimulus contrast levels is the number of different conditions
 ex.test.contrastMultiplicator = ex.test.luminanceRange/2;  % for sine wave 0.5 = 100% contrast, 0.2 = 40%
-ex.test.contrastOffset = ex.stim.backgroundLum(:,1)./255;%[108.3750  108.3750  108.3750]; %repmat(min(min(squeeze(ex.rectSWave(1,1,:,:)),[],1)), [1,3]);
-%0.2+0.7/2;%0.425;
+ex.test.contrastOffset = 0.425;
 ex.test.maxLum = 255*(ex.test.contrastOffset+ex.test.contrastMultiplicator);
 ex.test.minLum = 255*(ex.test.contrastOffset-ex.test.contrastMultiplicator);
 ex.test.contrast = (ex.test.maxLum-ex.test.minLum)./(ex.test.maxLum+ex.test.minLum);
 % ex.test.orientation = [45 135];
 ex.test.gaborHDeg = ex.stim.gaborHDeg;                                                  % in degrees of visual angle
-ex.test.gaborWDeg = (2/3)*4;%4;%
+ex.test.gaborWDeg =(2/3)*4;% 4;
 ex.test.distFromFixDeg = 0; % in degrees of visual angle, grating center 2 deg away (edge 1 deg away)
 ex.test.cycPerSec = ex.stim.cycPerSec;
 ex.testDur = (1/ex.test.cycPerSec);        % in seconds. 1.77 sec refers to sine wave grating 1.77 = 2cycles/1.13cyc.sec-1 mutiplied by 2 for back and forth
@@ -127,12 +119,10 @@ ex.yoffsetDeg = 0;%4; %degrees of visual angle
 
 %%%% conditions & layout (across blocks scale)
 
-ex.conds = {'LowContPhUp','LowContPhDown','LowContPhCtUp','LowContPhCtDown',...
-    'MedContPhUp','MedContPhDown','MedContPhCtUp','MedContPhCtDown', ...%
-    'HighContPhUp','HighContPhDown','HighContPhCtUp','HighContPhCtDown'
+ex.conds = {'MinbgPairLeftUp','MinbgPairLeftDown','MeanbgPairLeftUp','MeanbgPairLeftDown','LightbgPairLeftUp','LightbgPairLeftDown' ...%,
     %Here, the Left/Right indicator in the condition name corresponds to the phantom grating pair location on the screen 
     }; 
-ex.repsPerRun = [16 16 16 16 16 16 16 16 16 16 16 16];              % repetitions of each condition per run
+ex.repsPerRun = [16 16 16 16 16 16];              % repetitions of each condition per run
 condIdx = 1:length(ex.conds); %[1,4,7]; %conditions we are interested to keep
 ex.conds = ex.conds(condIdx);
 ex.repsPerRun = ex.repsPerRun(condIdx);
@@ -224,7 +214,7 @@ frameRate =  1/frameInt;%Screen('NominalFrameRate',w);
 flipTimes = [0:1/ex.flipsPerSec:1/(ex.stim.cycPerSec)]; %multiply frameInt by 60/12 = 5 to flip the image every 5 frames
 ex.stim.flipTimes = flipTimes(1:length(flipTimes)-1);
 
-nconds = length(ex.stim.contrastMultiplicator);
+nconds = length(ex.stim.contrastOffset);
 ex.stim.phases = nan(nconds, length(ex.stim.flipTimes));
 
 clear r l
@@ -279,7 +269,7 @@ ex.ppd = pi* rect(3) / (atan(ex.screenWidth/ex.viewingDist/2)) / 360;
 ex.gaborHeight = round(ex.stim.gaborHDeg*ex.ppd);                 % in pixels, the size of our objects
 ex.gaborWidth = round(ex.stim.gaborWDeg*ex.ppd);                 % in pixels, the size of our objects
 ex.rawGaborHeight = ex.gaborHeight;
-ex.rawGaborWidth = ex.gaborWidth;
+ex.rawGaborWidth = ex.gaborWidth*3;
 ex.stim.distFromFix = round(ex.stim.distFromFixDeg*ex.ppd);
 
 %%%% scale the test params for the screen
@@ -306,11 +296,11 @@ ex.rectSWave = nan(ex.rawGaborHeight,ex.rawGaborWidth,length(ex.test.oscillation
 ex.rectSWaveID = nan(length(ex.test.oscillation1),nconds);
 clear c r
 
-for l = 1:length(ex.stim.contrastMultiplicator)
+for l = 1:length(ex.stim.contrastOffset)
     for f =1:length(ex.test.oscillation1)
         phase = ex.stim.phases(l,f);
         ex.rectSWave(:,:,f,l) = makeSineGrating(ex.rawGaborHeight,ex.rawGaborWidth,ex.stim.spatialFreqDeg,...
-            ex.stim.orientation,phase,ex.stim.contrastOffset(l),ex.stim.contrastMultiplicator(l),...
+            ex.stim.orientation,phase,ex.stim.contrastOffset(l),ex.stim.contrastMultiplicator,...
             ex.ppd);
         ex.rectSWaveID(f,l) = Screen('MakeTexture', w, squeeze(ex.rectSWave(:,:,f,l)));
     end
@@ -324,21 +314,16 @@ end
 % minval = min(squeeze(ex.rectSWave(1,1,1,:,:)),[],'all');
 % maxval = max(squeeze(ex.rectSWave(1,1,1,:,:)),[],'all');
 
-%% create dynamic grating image as a test for other eye
+%% create static grating image as a test for other eye
 
-% phase = repmat((0:360/60:360-360/60),1,ex.testLength);
-phases1 = ex.test.tmpphase;%squeeze(ex.stim.phases(c,l,r,:)).*360.*ex.rawProbeHeight./ex.ppd;%
 spphase = 0;
-ex.testStim = nan(ex.rawProbeHeight,ex.rawProbeWidth,ex.testLength*ex.flipsPerSec,length(ex.test.contrastOffset));
-for l = 1:length(ex.test.contrastOffset)
-    for n = 1:length(phases1)
-        ex.testStim(:,:,n,l) = makeCounterPhasingGrating(ex.rawProbeHeight,ex.rawProbeWidth,ex.stim.spatialFreqDeg,...
-            ex.stim.orientation,spphase,ex.test.contrastOffset(l),ex.test.contrastMultiplicator, ex.test.tmpphase(n),...
-            ex.ppd);
-        ex.testStimID(n,l) = Screen('MakeTexture', w, squeeze(ex.testStim(:,:,n,l)));
-    end
-end
-% check luminances ranges
+ex.testStim = nan(ex.rawProbeHeight,ex.rawProbeWidth);
+ex.testStim(:,:) = makeCounterPhasingGrating(ex.rawProbeHeight,ex.rawProbeWidth,ex.stim.spatialFreqDeg,...
+    ex.stim.orientation,spphase,ex.test.contrastOffset,ex.test.contrastMultiplicator, ex.test.tmpphase(1),...
+    ex.ppd);
+ex.testStimID = Screen('MakeTexture', w, squeeze(ex.testStim(:,:)));
+
+%check luminances ranges
 % min(squeeze(ex.testStim(:,:,1)),[],'all')
 % max(squeeze(ex.testStim(:,:,1)),[],'all')
 % % repmat(max(max(squeeze(ex.lcSWave(1,:,:)),[],1)),1)
@@ -356,20 +341,26 @@ xc = rect(3)/2; % rect and center, with the flexibility to resize & shift center
 yc = rect(4)/2; %+e.vertOffset;
 
 %left grating
-xL = xc-ex.stim.distFromFix-ex.xoffset;
+xLl = xc-ex.gaborWidth-ex.stim.distFromFix-ex.xoffset;
+xLr = xc-ex.stim.distFromFix-ex.xoffset;
 % grating y locations
-yL = yc-ex.yoffset;
-%right grating
-xR = xc+ex.stim.distFromFix-ex.xoffset;
-yR = yc-ex.yoffset;
+yLt = yc-(1/2)*ex.gaborHeight-ex.yoffset;
+yLb = yc+(1/2)*ex.gaborHeight-ex.yoffset;
 
+%right grating
+xRl = xc+ex.stim.distFromFix-ex.xoffset;
+xRr = xc+ex.gaborWidth+ex.stim.distFromFix-ex.xoffset;
+yRt = yc-(1/2)*ex.gaborHeight-ex.yoffset;
+yRb = yc+(1/2)*ex.gaborHeight-ex.yoffset;
  
 %% Create rectangular masks to make an intervening blank gap
-% ph1LPaperture=Screen('OpenOffscreenwindow', w, ex.stim.backgroundLum(l,:));
-% Screen('FillRect',ph1LPaperture, [255 255 255 0], [xLl yLt xLr yLb]); %Left grating window
-% Screen('FillRect',ph1LPaperture, [255 255 255 0], [xRl yRt xRr yRb]); %Right grating window
 
+%phantom condition 1
+ph1LPaperture=Screen('OpenOffscreenwindow', w, ex.stim.backgroundLum);
+Screen('FillRect',ph1LPaperture, [255 255 255 0], [xLl yLt xLr yLb]); %Left grating window
+Screen('FillRect',ph1LPaperture, [255 255 255 0], [xRl yRt xRr yRb]); %Right grating window
 
+    
 %% %%%% initial window - wait for backtick
 DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n report using the following digits \n\n 4: The central grating (probe) \n\n appears to go up \n\n 1: The probe is counter-phasing  \n\n 0: The probe appears to go down \n\n Press Space to start'... % :  '...
     ,xc/2, yc/2,[0 0 0]);
@@ -409,48 +400,40 @@ if n == 1 && blockCnt == 1 %for first block
 end
 %%% Launch the task
 for c = 1:length(ex.condShuffle)
-    
+ 
     condNum = ex.condShuffle(c);
     condName = conditions(condNum).name{:};
     f = 1;
     l = ceil(condNum/2); % indices for each contrast level
-    %l = condNum;
+    
     %flip through the block and following between block time
     while n <= length(ex.longFormBlocks) %true
         KbQueueStart(); % response time
         ex.longFormBlocks(n)
         %%%% draw sine wave grating stimulus %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-        Screen('FillRect', w, ex.stim.backgroundLum(l,:));
-        if nnz(find(ex.longFormStimOnSecs(n)))
-            ex.rectLRect =  CenterRectOnPoint([0 0 ex.rawGaborWidth ex.rawGaborHeight],xL,yL);
-            ex.rectRRect =  CenterRectOnPoint([0 0 ex.rawGaborWidth ex.rawGaborHeight],xR,yR);
-
-            % stim
-            if contains(condName, 'Up')
-                Screen('DrawTexture', w, ex.rectSWaveID(f,l),[],ex.rectLRect);
-                Screen('DrawTexture', w, ex.rectSWaveID(f,l),[],ex.rectRRect);
-
-            elseif contains(condName, 'Down')
-                Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectLRect);
-                Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectRRect);
-
+            Screen('FillRect', w, ex.stim.backgroundLum);
+            if nnz(find(ex.longFormStimOnSecs(n)))
+                ex.rectLRect =  CenterRectOnPoint([0 0 ex.rawGaborWidth ex.rawGaborHeight],xc-ex.xoffset,yc-ex.yoffset);
+                % stim
+                if contains(condName, 'Up')
+                    Screen('DrawTexture', w, ex.rectSWaveID(f,l),[],ex.rectLRect);
+                elseif contains(condName, 'Down')
+                    Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectLRect);
+                end
+                Screen('DrawTexture',w,ph1LPaperture);
+                
             end
-            
-%             Screen('DrawTexture',w,ph1LPaperture);
-            
-        end
         Screen('DrawDots', w, [xc yc+ex.yoffset], ex.fixSize, [255 255 255], [], 2);
-        %% Draw Test stimulus on the screen
+                %% Draw Test stimulus on the screen
         if length(ex.longFormBlocks(1:n))/60 >= ex.blockLength && length(ex.longFormBlocks(1:n))/60 < ex.blockLength+ex.testLength%(cnt/2 == 1 && GetSecs-time >= 0) && c ~= length(ex.condShuffle)
             
             
             ex.lcLRect =  CenterRectOnPoint([0 0 ex.rawProbeWidth ex.rawProbeHeight],xc-ex.xoffset,yc-ex.yoffset);
             % test stim
-            Screen('DrawTexture', w, ex.testStimID(f,l),[],ex.lcLRect,[],[],[]);
-            %Fixation
+            Screen('DrawTexture', w, ex.testStimID,[],ex.lcLRect,[],[],[]);
+            %Fixation 
             Screen('DrawDots', w, [xc yc+ex.yoffset], ex.fixSize, [255 255 255], [], 2);
-            
+ 
         end
         
         %%%%%%%%%%% FLIP %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -463,18 +446,17 @@ for c = 1:length(ex.condShuffle)
             flipTimes = [flipTimes, flipTime];
             
         end
-        
-        
+
+
         if length(ex.longFormBlocks(1:n))/60 == ex.blockLength+ex.testLength && c ~= length(ex.condShuffle) %(cnt/2 == 1 && GetSecs-time >= ex.blockLength+ex.testLength) && c ~= length(ex.condShuffle)
-            WaitSecs(ex.ITI1);
+            WaitSecs(ex.ITI1); 
             %             [ex.respT(cnt),~,~] =KbWait(deviceNumber,2);
             DrawFormattedText(w,'Press Space whenever \n\n you feel ready',(4/5)*xc, yc/2,[0 0 0]); %left instruction
-            %% Fixation
-            Screen('DrawDots', w, [xc yc+ex.yoffset], ex.fixSize, [255 255 255], [], 2);
+            %% Fixation       
+            Screen('DrawDots', w, [xc yc+ex.yoffset], ex.fixSize, [255 255 255], [], 2);            
             Screen(w, 'Flip', 0);
             [~,~,~] =KbWait(deviceNumber,2);
-            Screen('FillRect', w, ex.stim.backgroundLum(ceil(ex.condShuffle(c+1)/2),:));
-            Screen('DrawDots', w, [xc yc+ex.yoffset], ex.fixSize, [255 255 255], [], 2);
+            Screen('DrawDots', w, [xc yc+ex.yoffset], ex.fixSize, [255 255 255], [], 2);            
             Screen(w, 'Flip', 0);
             WaitSecs(ex.ITI2);
             cnt = cnt+1;
@@ -499,7 +481,7 @@ for c = 1:length(ex.condShuffle)
             end
             pressed = 0;
         end
-        %%%% refresh queue for next character
+                 %%%% refresh queue for next character
         KbQueueFlush();
         f = f+1;
         n = n+1;
@@ -507,7 +489,7 @@ for c = 1:length(ex.condShuffle)
             f = 1;
         end
     end
-    
+
     ex.flipTime(:,c) = flipTimes;
     n = 1;
 end
@@ -518,7 +500,7 @@ end
 
 ex.runTime = GetSecs - ex.startRun;
 
-savedir = fullfile(ex.root,'data/dyn_MAE',sprintf('%s/%s_%s/',ex.version,subject,ex.version));
+savedir = fullfile(ex.root,'data/dyn_MAE',sprintf('%s_%s/',subject,ex.version));
 if ~exist(savedir); mkdir(savedir); end
 savename = fullfile(savedir, strcat(sprintf('/%s_dyn_MAE_%s_date%s_fix',subject,ex.version,num2str(ex.date)), '.mat'));
 %save(savename,'ex');
