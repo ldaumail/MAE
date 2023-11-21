@@ -371,7 +371,7 @@ yR = yc-ex.yoffset;
 
 
 %% %%%% initial window - wait for backtick
-DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n report using the following digits \n\n 4: The central grating (probe) \n\n appears to go up \n\n 1: The probe is counter-phasing  \n\n 0: The probe appears to go down \n\n Press Space to start'... % :  '...
+DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n report your initial percept using the following digits \n\n 4: The central grating (probe) \n\n appears to go up \n\n 1: The central grating motion direction is ambiguous  \n\n 0: The central grating appears to go down \n\n Press Space to start'... % :  '...
     ,xc/2, yc/2,[0 0 0]);
 Screen(w, 'Flip', 0);
 %WaitSecs(2);
