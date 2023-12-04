@@ -140,8 +140,9 @@ avgConditions = {sprintf('%s\\newline%s\\newline%s\n','Low Contrast Phantom'),  
     };
 ylab = {'Proportion of occurence of each percept (%)'};
 yval = permute(yvar, [3 1 2]);
-groupsDotBarPlotSEM(yval,avgConditions, percepts, ylab)
-saveas(gcf,strcat(plotdir, sprintf('proportion_percepts_same_opposite_%s_%s_sp4_test2point67_group_subplot.png', name, version)));
+% groupsDotBarPlotSEM(yval,avgConditions, percepts, ylab)
+groupsBarPlotSEM(yval,avgConditions, percepts, ylab)
+saveas(gcf,strcat(plotdir, sprintf('proportion_percepts_same_opposite_%s_%s_sp4_test2point67_group_subplot.svg', name, version)));
 
 
 %% stats
@@ -303,10 +304,10 @@ ylims = [50 110];
 % groupsBarPlotSEM(yvar',avgConditions, {'bias'}, ylab)
 % groupsDotBarPlotSEM(yvar',avgConditions, {'bias'}, ylab)
 
-% singleBarPlotSEM3(yvar,avgConditions, {'bias'}, ylab, ylims);
+ singleBarPlotSEM3(yvar,avgConditions, {'bias'}, ylab, ylims);
 
-singleBarDotPlotSEM3(yvar,avgConditions, {'bias'}, ylab, ylims);
-saveas(gcf,strcat(plotdir, sprintf('percent_bias_%s_%s_sp4_test2point67.png', name, version)));
+%singleBarDotPlotSEM3(yvar,avgConditions, {'bias'}, ylab, ylims);
+saveas(gcf,strcat(plotdir, sprintf('percent_bias_%s_%s_sp5.svg', name, version)));
 
 %% Inducer type vs contrast interaction
 
@@ -333,4 +334,20 @@ lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|Subject
 [pVal, F, R] = coefTest(lme);
 
 
+[ttestMean(1), Pval(1),~,Stats(1).stats] = ttest(yvar(:,1),yvar(:,4));%phantom low vs phantom control low
+[ttestMean(2), Pval(2),~,Stats(2).stats] = ttest(yvar(:,2),yvar(:,5));%phantom med vs phantom control med
+[ttestMean(3), Pval(3),~,Stats(3).stats] = ttest(yvar(:,3),yvar(:,6));%phantom high vs phantom control high
+[ttestMean(4), Pval(4),~,Stats(4).stats] = ttest(yvar(:,1),yvar(:,2));%phantom low vs phantom med
+[ttestMean(5), Pval(5),~,Stats(5).stats] = ttest(yvar(:,2),yvar(:,3));%phantom med vs phantom high
+[ttestMean(6), Pval(6),~,Stats(6).stats] = ttest(yvar(:,1),yvar(:,3));%phantom low vs phantom high
+[ttestMean(7), Pval(7),~,Stats(7).stats] = ttest(yvar(:,4),yvar(:,5));%phantom control low vs phantom control med
+[ttestMean(8), Pval(8),~,Stats(8).stats] = ttest(yvar(:,5),yvar(:,6));%phantom control med vs phantom control high
+[ttestMean(9), Pval(9),~,Stats(9).stats] = ttest(yvar(:,4),yvar(:,6));%phantom control low vs phantom control high
+
+
+
+%% Correlation between perceptual report and percent bias
+
+%x axis = No | Yes
+%Y axis = Percent bias
 
