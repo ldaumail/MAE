@@ -56,26 +56,23 @@ ex.date = datestr(now,30);
 
 
 %%%% 2D sine wave grating inducers properties
-ex.stim.spatialFreqDeg = 0.5/2;   % cycles per degree of visual angle
+ex.stim.spatialFreqDeg = 0.25;%0.5/2;   % cycles per degree of visual angle
 ex.stim.orientation = [180]; %[90 180];                                                % in degrees
 ex.stim.gaborHDeg = 12;                                                   % in degrees of visual angle
 ex.stim.gaborWDeg = 6; 
 ex.stim.distFromFixDeg = 2+ex.stim.gaborWDeg/2;%3;%2; %1.5 %each grating edge 1.5 deg horizontal away from fixation (grating center 6 deg away)
-% ex.stim.luminanceRange = [0.03 0.03 0.15 0.15 0.7 0.7]; %0.15;%% in %, maybe?? %here the number of stimulus contrast levels is the number of different conditions
 
-% ex.stim.backgroundLum = [121.125 121.125 121.125];
-ex.stim.backgroundLum = [30 30 30];
+ex.stim.backgroundLum = [30 30 30; 30 30 30];
+% ex.stim.backgroundLum = [20 20 20; 20 20 20];
 ex.stim.contrast = 0.15;
-ex.stim.contrastOffset = (ex.stim.backgroundLum(:,1)./255)./(1-ex.stim.contrast);%+ex.stim.contrast/2;
+ex.stim.contrastOffset = [(ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast); ex.stim.backgroundLum(2,1)./255];%+ex.stim.contrast/2;
 ex.stim.luminanceRange = 2*ex.stim.contrast*ex.stim.contrastOffset;
 ex.stim.contrastMultiplicator = ex.stim.luminanceRange./2;  % for sine wave
-% ex.stim.contrastOffset = [0.55 0.55 0.55 0.55 0.55 0.55];%0.2+0.7/2 = 0.55    0.425+ex.stim.contrastMultiplicator; %.5 corresponds to 255/2 = 127.5 , 0.425*255 = 108.375, 0.35*255 = 89.25;                                  % for procedural gabor
 
 ex.stim.maxLum = 255*(ex.stim.contrastOffset+ex.stim.contrastMultiplicator);
 ex.stim.minLum = 255*(ex.stim.contrastOffset-ex.stim.contrastMultiplicator);
 ex.stim.contrast = (ex.stim.maxLum-ex.stim.minLum)./(ex.stim.maxLum+ex.stim.minLum);
 
-% ex.stim.backgroundLum = [136.425 136.425 136.425; 140.25 140.25 140.25; 121.125 121.125 121.125; 140.25 140.25 140.25; 51 51 51; 140.25 140.25 140.25];%[108.3750  108.3750  108.3750]; %repmat(min(min(squeeze(ex.rectSWave(1,1,:,:)),[],1)), [1,3]);
 
 
 %% Background Luminance levels for each phantom condition
@@ -88,7 +85,7 @@ ex.stim.contrast = (ex.stim.maxLum-ex.stim.minLum)./(ex.stim.maxLum+ex.stim.minL
 %%%% sine wave grating timing (within block scale)
 ex.initialFixation = 6;        % in seconds
 ex.finalFixation = 2;          % in seconds
-ex.blockLength = 120; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
+ex.blockLength = 120; %120; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
 ex.testLength = 1;% in seconds
 ex.ITI1 = 3;
 ex.ITI2 = 1;% in seconds
@@ -96,7 +93,7 @@ ex.ITI3 = 9; %+9 sec break every 10 trial
 % ex.betweenBlocks = 2;          % in seconds
 ex.flipsPerSec = 60;  % 60;         % number of phase changes we want from the visual stimulus, and thus the number of times we want to change visual stimulation on the screen
 ex.flipWin = 1/ex.flipsPerSec;         % in seconds then actually in 1 sec the stimuli will change 12 times 
-ex.stim.cycPerSec = 2; %drifting speed in cycles of grating per sec
+ex.stim.cycPerSec = 1; %drifting speed in cycles of grating per sec
 ex.stim.motionRate = 360*ex.stim.cycPerSec; %drifting speed in degrees of visual angle per sec
 ex.stim.dphase = ex.stim.motionRate/ex.flipsPerSec; %degrees per flip
 
@@ -139,8 +136,8 @@ ex.yoffsetDeg = 0;%4; %degrees of visual angle
 %     'HighContPhUp','HighContPhDown','HighContPhCtUp','HighContPhCtDown'
 %     %Here, the Left/Right indicator in the condition name corresponds to the phantom grating pair location on the screen 
 %     }; 
-ex.conds = {'MedContPhUp','MedContPhDown'};
-ex.repsPerRun = [1 1];              % repetitions of each condition per run
+ex.conds = {'MedContPhUp','MedContPhDown','MedContPhCtUp','MedContPhCtDown'};
+ex.repsPerRun = [1 1 1 1];              % repetitions of each condition per run
 condIdx = 1:length(ex.conds); %[1,4,7]; %conditions we are interested to keep
 ex.conds = ex.conds(condIdx);
 ex.repsPerRun = ex.repsPerRun(condIdx);
