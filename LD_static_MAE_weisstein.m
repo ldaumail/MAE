@@ -60,10 +60,11 @@ ex.stim.spatialFreqDeg = 0.36;%0.5/2;   % cycles per degree of visual angle
 ex.stim.orientation = [90]; %[90 180];                                                % in degrees
 ex.stim.gaborHDeg = 5.2;                                                   % in degrees of visual angle
 ex.stim.gaborWDeg = 8.8; 
-ex.stim.distFromFixDeg = (ex.stim.gaborHDeg+2.6)/2;%3;%2; %1.5 %each grating edge 1.5 deg horizontal away from fixation (grating center 6 deg away)
+ex.stim.gapSizeDeg = 2.6;
+ex.stim.distFromFixDeg = (ex.stim.gaborHDeg+ex.stim.gapSizeDeg)/2;%3;%2; %1.5 %each grating edge 1.5 deg horizontal away from fixation (grating center 6 deg away)
 
 % ex.stim.backgroundLum = [0 0 0; 0 0 0];
-ex.stim.backgroundLum = [20 20 20; 20 20 20];
+ex.stim.backgroundLum = [30 30 30; 30 30 30];
 ex.stim.contrast = 0.15;
 ex.stim.contrastOffset = [(ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast); ex.stim.backgroundLum(2,1)./255];%+ex.stim.contrast/2;
 ex.stim.luminanceRange = 2*ex.stim.contrast*ex.stim.contrastOffset;
@@ -93,7 +94,7 @@ ex.ITI3 = 9; %+9 sec break every 10 trial
 % ex.betweenBlocks = 2;          % in seconds
 ex.flipsPerSec = 60;  % 60;         % number of phase changes we want from the visual stimulus, and thus the number of times we want to change visual stimulation on the screen
 ex.flipWin = 1/ex.flipsPerSec;         % in seconds then actually in 1 sec the stimuli will change 12 times 
-ex.stim.cycPerSec = 2.8*ex.stim.spatialFreqDeg; %drifting speed in cycles of grating per sec
+ex.stim.cycPerSec = floor(2.8*ex.stim.spatialFreqDeg); % 2.78 deg/s is the drifting speed drifting speed in cycles of grating per sec
 ex.stim.motionRate = 360*ex.stim.cycPerSec; %drifting speed in degrees of visual angle per sec
 ex.stim.dphase = ex.stim.motionRate/ex.flipsPerSec; %degrees per flip
 
@@ -106,8 +107,8 @@ ex.test.luminanceRange = 2*ex.test.contrast*ex.test.contrastOffset;%0.1; %linspa
 ex.test.contrastMultiplicator = ex.test.luminanceRange/2;  % for sine wave 0.5 = 100% contrast, 0.2 = 40%
 
 %0.2+0.7/2;%0.425;
-ex.test.gaborHDeg = ex.stim.gaborHDeg;                                                  % in degrees of visual angle
-ex.test.gaborWDeg = (2/3)*4;%4;%
+ex.test.gaborHDeg = ex.stim.gapSizeDeg*(2/3);                                                  % in degrees of visual angle
+ex.test.gaborWDeg = ex.stim.gaborWDeg;
 ex.test.distFromFixDeg = 0; % in degrees of visual angle, grating center 2 deg away (edge 1 deg away)
 ex.test.cycPerSec = ex.stim.cycPerSec;
 ex.testDur = (1/ex.test.cycPerSec);        % in seconds. 1.77 sec refers to sine wave grating 1.77 = 2cycles/1.13cyc.sec-1 mutiplied by 2 for back and forth
@@ -507,7 +508,7 @@ for c = 1:length(ex.condShuffle)
         KbQueueFlush();
         f = f+1;
         n = n+1;
-        if f == 58;%ex.flipsPerSec/ex.stim.cycPerSec
+        if f == ceil(ex.flipsPerSec/ex.stim.cycPerSec)
             f = 1;
         end
     end
