@@ -376,7 +376,7 @@ yR = yc+ex.stim.distFromFix-ex.yoffset;
 
 
 %% %%%% initial window - wait for backtick
-DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n report your initial percept using the following digits \n\n 4: The central grating (probe) \n\n appears to go up \n\n 1: The central grating motion direction is ambiguous  \n\n 0: The central grating appears to go down \n\n Press Space to start'... % :  '...
+DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n report when the MAE effect on the test stimulus \n\n disappears by pressing 1 \n\n Press Space to start'... % :  '...
     ,xc/2, yc/2,[0 0 0]);
 Screen(w, 'Flip', 0);
 %WaitSecs(2);
@@ -488,11 +488,11 @@ for c = 1:length(ex.condShuffle)
 %             
 
         end
-%         if mod(cnt,10) == 0 && cnt >=1 
-
-
-%             cnt = 0;
-%         end
+        %         if mod(cnt,10) == 0 && cnt >=1
+        
+        if cnt >=1
+            cnt = 0;
+        end
         KbQueueStop();
         [pressed, firstPress]= KbQueueCheck();
         if  (pressed == 1) &&  (firstPress(KbName('1!')) > 0 || firstPress(KbName('1')) > 0) %%|| (firstPress(KbName('4$')) > 0 || firstPress(KbName('4')) > 0)
@@ -522,9 +522,9 @@ end
 
 ex.runTime = GetSecs - ex.startRun;
 
-savedir = fullfile(ex.root,'data/dyn_MAE',sprintf('%s/%s_%s/',ex.version,subject,ex.version));
+savedir = fullfile(ex.root,'data/static_MAE',sprintf('%s/%s_%s/',ex.version,subject,ex.version));
 if ~exist(savedir); mkdir(savedir); end
-savename = fullfile(savedir, strcat(sprintf('/%s_dyn_MAE_%s_date%s_fix',subject,ex.version,num2str(ex.date)), '.mat'));
+savename = fullfile(savedir, strcat(sprintf('/%s_static_MAE_%s_date%s_fix',subject,ex.version,num2str(ex.date)), '.mat'));
 %save(savename,'ex');
 save(savename,'ex','-v7.3')
 
