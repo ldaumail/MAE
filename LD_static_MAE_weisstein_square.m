@@ -1,4 +1,4 @@
-function LD_static_MAE_weisstein(subject, session, debug)
+function LD_static_MAE_weisstein_square(subject, session, debug)
 
 %In this version, we add multiple velocities
 % subject = 'sub-01'; 
@@ -63,10 +63,10 @@ ex.stim.gaborWDeg = 8.8;
 ex.stim.gapSizeDeg = 2.6;
 ex.stim.distFromFixDeg = (ex.stim.gaborHDeg+ex.stim.gapSizeDeg)/2;%3;%2; %1.5 %each grating edge 1.5 deg horizontal away from fixation (grating center 6 deg away)
 
-% ex.stim.backgroundLum = [0 0 0; 0 0 0];
-ex.stim.backgroundLum = [30 30 30; 30 30 30];
+ex.stim.backgroundLum = [5 5 5; 5 5 5]; %
+% ex.stim.backgroundLum = [30 30 30; 30 30 30];
 ex.stim.contrast = 0.15;
-ex.stim.contrastOffset = [(ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast); ex.stim.backgroundLum(2,1)./255];%+ex.stim.contrast/2;
+ex.stim.contrastOffset = [(ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast); ex.stim.backgroundLum(2,1)./255];%; 
 ex.stim.luminanceRange = 2*ex.stim.contrast*ex.stim.contrastOffset;
 ex.stim.contrastMultiplicator = ex.stim.luminanceRange./2;  % for sine wave
 
@@ -86,11 +86,11 @@ ex.stim.contrast = (ex.stim.maxLum-ex.stim.minLum)./(ex.stim.maxLum+ex.stim.minL
 %%%% sine wave grating timing (within block scale)
 ex.initialFixation = 6;        % in seconds
 ex.finalFixation = 2;          % in seconds
-ex.blockLength = 60; %120; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
+ex.blockLength = 8; %120; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
 ex.testLength = 1;% in seconds
-ex.ITI1 = 2;
+ex.ITI1 = 3;
 ex.ITI2 = 1;% in seconds
-% ex.ITI3 = 2; %+9 sec break every 10 trial
+ex.ITI3 = 9; %+9 sec break every 10 trial
 % ex.betweenBlocks = 2;          % in seconds
 ex.flipsPerSec = 60;  % 60;         % number of phase changes we want from the visual stimulus, and thus the number of times we want to change visual stimulation on the screen
 ex.flipWin = 1/ex.flipsPerSec;         % in seconds then actually in 1 sec the stimuli will change 12 times 
@@ -100,15 +100,15 @@ ex.stim.dphase = ex.stim.motionRate/ex.flipsPerSec; %degrees per flip
 
 
 %%%% Test stimulus: counterphasing grating
-ex.test.spatialFreqDeg = 1.5;
-ex.test.contrastOffset = (ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast);%ex.stim.backgroundLum(:,1)./255;% 
+% ex.test.spatialFreqDeg = 2;
+ex.test.contrastOffset = ex.stim.backgroundLum(:,1)./255;% 
 ex.test.contrast = 0.1;
 ex.test.luminanceRange = 2*ex.test.contrast*ex.test.contrastOffset;%0.1; %linspace(0.01,0.20,10);%[0.05, 0.10, 0.15];                                                 % in %, maybe?? %here the number of stimulus contrast levels is the number of different conditions
 ex.test.contrastMultiplicator = ex.test.luminanceRange/2;  % for sine wave 0.5 = 100% contrast, 0.2 = 40%
 
 %0.2+0.7/2;%0.425;
-ex.test.gaborHDeg = 1.6; %ex.stim.gapSizeDeg*(2/3);                                                  % in degrees of visual angle
-ex.test.gaborWDeg = 1.6; %ex.stim.gaborWDeg;
+ex.test.gaborHDeg = ex.stim.gapSizeDeg*(2/3);                                                  % in degrees of visual angle
+ex.test.gaborWDeg = ex.stim.gaborWDeg;
 ex.test.distFromFixDeg = 0; % in degrees of visual angle, grating center 2 deg away (edge 1 deg away)
 ex.test.cycPerSec = ex.stim.cycPerSec;
 ex.testDur = (1/ex.test.cycPerSec);        % in seconds. 1.77 sec refers to sine wave grating 1.77 = 2cycles/1.13cyc.sec-1 mutiplied by 2 for back and forth
@@ -137,8 +137,8 @@ ex.yoffsetDeg = 0;%4; %degrees of visual angle
 %     'HighContPhUp','HighContPhDown','HighContPhCtUp','HighContPhCtDown'
 %     %Here, the Left/Right indicator in the condition name corresponds to the phantom grating pair location on the screen 
 %     }; 
-ex.conds = {'MedContPhUp','MedContPhDown','MedContPhCtUp','MedContPhCtDown'};
-ex.repsPerRun = [10 10 10 10];              % repetitions of each condition per run
+ex.conds = {'MedContPhUp','MedContPhDown','MedContPhCtUp','MedContPhCtDown'}; %
+ex.repsPerRun = [1 1 1 1];              % 1 1 repetitions of each condition per run
 condIdx = 1:length(ex.conds); %[1,4,7]; %conditions we are interested to keep
 ex.conds = ex.conds(condIdx);
 ex.repsPerRun = ex.repsPerRun(condIdx);
@@ -314,7 +314,7 @@ clear c r
 for l = 1:length(ex.stim.contrastMultiplicator)
     for f =1:length(ex.test.oscillation1)
         phase = ex.stim.phases(l,f);
-        ex.rectSWave(:,:,f,l) = makeSineGrating(ex.rawGaborHeight,ex.rawGaborWidth,ex.stim.spatialFreqDeg,...
+        ex.rectSWave(:,:,f,l) = makeSquSineGrating(ex.rawGaborHeight,ex.rawGaborWidth,ex.stim.spatialFreqDeg,...
             ex.stim.orientation,phase,ex.stim.contrastOffset(l),ex.stim.contrastMultiplicator(l),...
             ex.ppd);
         ex.rectSWaveID(f,l) = Screen('MakeTexture', w, squeeze(ex.rectSWave(:,:,f,l)));
@@ -337,7 +337,7 @@ spphase = 0;
 ex.testStim = nan(ex.rawProbeHeight,ex.rawProbeWidth,ex.testLength*ex.flipsPerSec,length(ex.test.contrastOffset));
 for l = 1:length(ex.test.contrastOffset)
     for n = 1:length(phases1)
-        ex.testStim(:,:,n,l) = makeCounterPhasingGrating(ex.rawProbeHeight,ex.rawProbeWidth,ex.test.spatialFreqDeg,...
+        ex.testStim(:,:,n,l) = makeSquSineGrating(ex.rawProbeHeight,ex.rawProbeWidth,ex.stim.spatialFreqDeg,...
             ex.stim.orientation,spphase,ex.test.contrastOffset(l),ex.test.contrastMultiplicator(l), ex.test.tmpphase(n),...
             ex.ppd);
         ex.testStimID(n,l) = Screen('MakeTexture', w, squeeze(ex.testStim(:,:,n,l)));
@@ -447,7 +447,7 @@ for c = 1:length(ex.condShuffle)
         end
         Screen('DrawDots', w, [xc yc+ex.yoffset], ex.fixSize, [255 255 255], [], 2);
         %% Draw Test stimulus on the screen
-        if length(ex.longFormBlocks(1:n))/60 >= ex.blockLength && cnt == 0 %&& length(ex.longFormBlocks(1:n))/60 < ex.blockLength+ex.testLength%(cnt/2 == 1 && GetSecs-time >= 0) && c ~= length(ex.condShuffle)
+        if length(ex.longFormBlocks(1:n))/60 >= ex.blockLength && length(ex.longFormBlocks(1:n))/60 < ex.blockLength+ex.testLength%(cnt/2 == 1 && GetSecs-time >= 0) && c ~= length(ex.condShuffle)
             
             
             ex.lcLRect =  CenterRectOnPoint([0 0 ex.rawProbeWidth ex.rawProbeHeight],xc-ex.xoffset,yc-ex.yoffset);
@@ -471,9 +471,6 @@ for c = 1:length(ex.condShuffle)
         
         
         if length(ex.longFormBlocks(1:n))/60 == ex.blockLength+ex.testLength && c ~= length(ex.condShuffle) %(cnt/2 == 1 && GetSecs-time >= ex.blockLength+ex.testLength) && c ~= length(ex.condShuffle)
-%             WaitSecs(ex.ITI1);
-            [~,~,~] =KbWait(deviceNumber,2);
-            cnt = cnt+1;
             WaitSecs(ex.ITI1);
             %             [ex.respT(cnt),~,~] =KbWait(deviceNumber,2);
             DrawFormattedText(w,'Press Space whenever \n\n you feel ready',(4/5)*xc, yc/2,[0 0 0]); %left instruction
@@ -485,21 +482,25 @@ for c = 1:length(ex.condShuffle)
             Screen('DrawDots', w, [xc yc+ex.yoffset], ex.fixSize, [255 255 255], [], 2);
             Screen(w, 'Flip', 0);
             WaitSecs(ex.ITI2);
-%             
-
+            cnt = cnt+1;
         end
-%         if mod(cnt,10) == 0 && cnt >=1 
-
-
-%             cnt = 0;
-%         end
+        if mod(cnt,10) == 0 && cnt >=1
+            WaitSecs(ex.ITI3);
+            cnt = 0;
+        end
         KbQueueStop();
         [pressed, firstPress]= KbQueueCheck();
-        if  (pressed == 1) &&  (firstPress(KbName('1!')) > 0 || firstPress(KbName('1')) > 0) %%|| (firstPress(KbName('4$')) > 0 || firstPress(KbName('4')) > 0)
+        if  (pressed == 1) && ((firstPress(KbName('4$')) > 0 ||(firstPress(KbName('4')) > 0)) || (firstPress(KbName('1!')) > 0 || firstPress(KbName('1')) > 0) || (firstPress(KbName('0)')) > 0 || firstPress(KbName('0')) > 0)) %%|| (firstPress(KbName('4$')) > 0 || firstPress(KbName('4')) > 0)
             ex.responses = [ex.responses, 1];
-            if (firstPress(KbName('1')) > 0)
+            if (firstPress(KbName('4')) > 0)
                 ex.correctResp = [ex.correctResp, 1];
+                ex.responseTimes = [ex.responseTimes, firstPress(KbName('4')) - ex.startRun];
+            elseif (firstPress(KbName('1')) > 0)
+                ex.correctResp = [ex.correctResp, 2];
                 ex.responseTimes = [ex.responseTimes, firstPress(KbName('1')) - ex.startRun];
+            elseif (firstPress(KbName('0')) > 0)
+                ex.correctResp = [ex.correctResp, 3];
+                ex.responseTimes = [ex.responseTimes, firstPress(KbName('0')) - ex.startRun];
             end
             pressed = 0;
         end
