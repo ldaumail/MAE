@@ -395,7 +395,10 @@ yRb = yc+ex.stim.distFromFix+vertOffsets(2);
 
 %% %%%% initial window - wait for backtick
 DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n report when the MAE effect on the test stimulus \n\n disappears by pressing 1 \n\n Press Space to start'... % :  '...
-    ,xc/2, yc/2,[0 0 0]);
+    ,xc/5+horiOffsets(1), yc/2+vertOffsets(1),[0 0 0]);
+DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n report when the MAE effect on the test stimulus \n\n disappears by pressing 1 \n\n Press Space to start'... % :  '...
+    ,xc+xc/5+horiOffsets(2), yc/2+vertOffsets(2),[0 0 0]);
+
 Screen(w, 'Flip', 0);
 %WaitSecs(2);
 KbTriggerWait(KbName('Space'), deviceNumber);
@@ -505,8 +508,9 @@ for c = 1:length(ex.condShuffle)
             WaitSecs(ex.ITI1);
             if c ~= length(ex.condShuffle)
                 %             [ex.respT(cnt),~,~] =KbWait(deviceNumber,2);
-                DrawFormattedText(w,'Press Space whenever \n\n you feel ready',(4/5)*xc, yc/2,[0 0 0]); %left instruction
-                %% Fixation
+                DrawFormattedText(w,'Press Space whenever \n\n you feel ready',xc/4+horiOffsets(1), yc/2+vertOffsets(1),[0 0 0]); %left instruction
+                DrawFormattedText(w,'Press Space whenever \n\n you feel ready',xc+xc/4+horiOffsets(2), yc/2+vertOffsets(2),[0 0 0]); %right instruction
+               %% Fixation
                 Screen('DrawDots', w, [xc*(1/2)+horiOffsets(1) yc+vertOffsets(1)], ex.fixSize, [255 255 255], [], 2);
                 Screen('DrawDots', w, [xc*(3/2)+horiOffsets(2) yc+vertOffsets(2)], ex.fixSize, [255 255 255], [], 2);
                 Screen(w, 'Flip', 0);
