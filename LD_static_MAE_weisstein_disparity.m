@@ -114,14 +114,14 @@ ex.testDur = (1/ex.test.cycPerSec);        % in seconds. 1.77 sec refers to sine
 %%%% Fixation
 ex.fixSizeDeg =  .2;            % in degrees, the size of the biggest white dot in the fixation
 ex.bigFixSizeDeg = 0.5;
-ex.outerFixPixels = 2;          % in pixels, the black ring around fixation
+% ex.outerFixPixels = 2;          % in pixels, the black ring around fixation
 
 %%%% Nonius lines 
-ex.lineHdeg = 0.4;
-ex.lineWdeg = 0.06;
+% ex.lineHdeg = 0.4;
+% ex.lineWdeg = 0.06;
 
 %%% horizontal line 
-ex.horiLineWdeg = 0.7;
+% ex.horiLineWdeg = 0.7;
 
 
 %%%% global stim/test offset from fixation
@@ -295,13 +295,7 @@ ex.test.distFromFix = round(ex.test.distFromFixDeg*ex.ppd);
 %%%scale the fixation params for the screen
 ex.fixSize = round(ex.fixSizeDeg*ex.ppd);
 ex.bigFixSize = round(ex.bigFixSizeDeg*ex.ppd);
-ex.lineW = round(ex.lineWdeg*ex.ppd);
-ex.lineH = round(ex.lineHdeg*ex.ppd);
-ex.horiLineW = round(ex.horiLineWdeg*ex.ppd);
-
-%%% scale offset
-% ex.xoffset = round(ex.xoffsetDeg*ex.ppd);
-% ex.yoffset = round(ex.yoffsetDeg*ex.ppd);
+ex.stim.gapSize = round(ex.stim.gapSizeDeg*ex.ppd);
 
 %% Create sinewave grating frames saved for each repetition and each condition
 
@@ -371,28 +365,46 @@ yRt = yc-ex.stim.distFromFix+vertOffsets(2);
 %bottom right grating
 xRb = xc*(3/2)+horiOffsets(2);
 yRb = yc+ex.stim.distFromFix+vertOffsets(2);
-% xc = rect(3)/2; % rect and center, with the flexibility to resize & shift center - change vars to zero if not used.
-% yc = rect(4)/2; %+e.vertOffset;
 
-%left grating
-% xLl = (1/2)*xc-ex.gaborWidth-ex.stim.distFromFix+horiOffsets(1);
-% xLr = (1/2)*xc-ex.stim.distFromFix+horiOffsets(1);
-% % grating y locations
-% yLt = yc-(1/2)*ex.gaborHeight+vertOffsets(1);
-% yLb = yc+(1/2)*ex.gaborHeight+vertOffsets(1);
-% 
-% %right grating
-% xRl = (1/2)*xc+ex.stim.distFromFix+horiOffsets(1);
-% xRr = (1/2)*xc+ex.gaborWidth+ex.stim.distFromFix+horiOffsets(1);
-% yRt = yc-(1/2)*ex.gaborHeight+vertOffsets(1);
-% yRb = yc+(1/2)*ex.gaborHeight+vertOffsets(1);
  
 %% Create rectangular masks to make an intervening blank gap
 % ph1LPaperture=Screen('OpenOffscreenwindow', w, ex.stim.backgroundLum(l,:));
 % Screen('FillRect',ph1LPaperture, [255 255 255 0], [xLl yLt xLr yLb]); %Left grating window
 % Screen('FillRect',ph1LPaperture, [255 255 255 0], [xRl yRt xRr yRb]); %Right grating window
 
+%% Create grid for disparity effect
+% ex.lineColor = [0 0 0];
+% ex.lineHdeg = 1/2;
+ex.lineThdeg = 0.1;
+ex.lineHdegSq = 5;
+ex.lineTh = ex.lineThdeg*ex.ppd;
+ex.lineHsq = ex.lineHdegSq*ex.ppd;
 
+%Right squares
+%Top squares
+xRTRsq = 3*xc/2+ex.lineHsq/2;
+xRTLsq = 3*xc/2-ex.lineHsq/2;
+yRTTsq = yc-ex.lineHsq/2-ex.probeHeight-ex.stim.gapSize;
+yRTBsq = yc+ex.lineHsq/2-ex.probeHeight-ex.stim.gapSize;
+
+%Bottom squares
+xRBRsq = 3*xc/2+ex.lineHsq/2;
+xRBLsq = 3*xc/2-ex.lineHsq/2;
+yRBTsq = yc-ex.lineHsq/2+ex.probeHeight+ex.stim.gapSize;
+yRBBsq = yc+ex.lineHsq/2+ex.probeHeight+ex.stim.gapSize;
+
+%Left squares
+%Top squares
+xLTRsq = xc/2+ex.lineHsq/2;
+xLTLsq = xc/2-ex.lineHsq/2;
+yLTTsq = yc-ex.lineHsq/2-ex.probeHeight-ex.stim.gapSize;
+yLTBsq = yc+ex.lineHsq/2-ex.probeHeight-ex.stim.gapSize;
+
+%Bottom squares
+xLBRsq = xc/2+ex.lineHsq/2;
+xLBLsq = xc/2-ex.lineHsq/2;
+yLBTsq = yc-ex.lineHsq/2+ex.probeHeight+ex.stim.gapSize;
+yLBBsq = yc+ex.lineHsq/2+ex.probeHeight+ex.stim.gapSize;
 %% %%%% initial window - wait for backtick
 DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n report when the MAE effect on the test stimulus \n\n disappears by pressing 1 \n\n Press Space to start'... % :  '...
     ,xc/5+horiOffsets(1), yc/2+vertOffsets(1),[0 0 0]);
@@ -450,12 +462,45 @@ for c = 1:length(ex.condShuffle)
 
         Screen('FillRect', w, ex.stim.backgroundLum(l,:));
         if nnz(find(ex.longFormStimOnSecs(n)))
+            %Right squares
+            squareRectRight1 = [xRTLsq, yRTTsq, xRTRsq, yRTBsq];
+            squareRectRight2 = [xRTLsq-20, yRTTsq-20, xRTRsq-20, yRTBsq-20];
+            squareRectRight3 = [xRTLsq+20, yRTTsq-20, xRTRsq+20, yRTBsq-20];
+            % Draw the top squares
+            Screen('FrameRect', w, [0 0 0], squareRectRight1, ex.lineTh);
+            Screen('FrameRect', w, [0 0 0], squareRectRight2, ex.lineTh);
+            Screen('FrameRect', w, [0 0 0], squareRectRight3, ex.lineTh);
+            
+            squareRectRight4 = [xRBLsq, yRBTsq, xRBRsq, yRBBsq];
+            squareRectRight5 = [xRBLsq-20, yRBTsq+20, xRBRsq-20, yRBBsq+20];
+            squareRectRight6 = [xRBLsq+20, yRBTsq+20, xRBRsq+20, yRBBsq+20];
+            
+            Screen('FrameRect', w, [0 0 0], squareRectRight4, ex.lineTh);
+            Screen('FrameRect', w, [0 0 0], squareRectRight5, ex.lineTh);
+            Screen('FrameRect', w, [0 0 0], squareRectRight6, ex.lineTh);
+            
+            %Left squares 
+            squareRectLeft1 = [xLTLsq, yLTTsq, xLTRsq, yLTBsq];
+            squareRectLeft2 = [xLTLsq-20, yLTTsq-20, xLTRsq-20, yLTBsq-20];
+            squareRectLeft3 = [xLTLsq+20, yLTTsq-20, xLTRsq+20, yLTBsq-20];
+            % Draw the top squares
+            Screen('FrameRect', w, [0 0 0], squareRectLeft1, ex.lineTh);
+            Screen('FrameRect', w, [0 0 0], squareRectLeft2, ex.lineTh);
+            Screen('FrameRect', w, [0 0 0], squareRectLeft3, ex.lineTh);
+            
+            squareRectLeft4 = [xLBLsq, yLBTsq, xLBRsq, yLBBsq];
+            squareRectLeft5 = [xLBLsq-20, yLBTsq+20, xLBRsq-20, yLBBsq+20];
+            squareRectLeft6 = [xLBLsq+20, yLBTsq+20, xLBRsq+20, yLBBsq+20];
+            
+            Screen('FrameRect', w, [0 0 0], squareRectLeft4, ex.lineTh);
+            Screen('FrameRect', w, [0 0 0], squareRectLeft5, ex.lineTh);
+            Screen('FrameRect', w, [0 0 0], squareRectLeft6, ex.lineTh);
+            % grating stims
             ex.rectLTRect =  CenterRectOnPoint([0 0 ex.rawGaborWidth ex.rawGaborHeight],xLt,yLt);
             ex.rectLBRect =  CenterRectOnPoint([0 0 ex.rawGaborWidth ex.rawGaborHeight],xLb,yLb);
             ex.rectRTRect =  CenterRectOnPoint([0 0 ex.rawGaborWidth ex.rawGaborHeight],xRt,yRt);
             ex.rectRBRect =  CenterRectOnPoint([0 0 ex.rawGaborWidth ex.rawGaborHeight],xRb,yRb);
 
-            % stim
             if contains(condName, 'Up')
                 Screen('DrawTexture', w, ex.rectSWaveID(f,l),[],ex.rectLTRect);
                 Screen('DrawTexture', w, ex.rectSWaveID(f,l),[],ex.rectLBRect);
@@ -466,11 +511,8 @@ for c = 1:length(ex.condShuffle)
                 Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectLBRect);
                 Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectRTRect);
                 Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectRBRect);
-
-            end
-            
-%             Screen('DrawTexture',w,ph1LPaperture);
-            
+                
+            end   
         end
     Screen('DrawDots', w, [xc*(1/2)+horiOffsets(1) yc+vertOffsets(1)], ex.fixSize, [255 255 255], [], 2);
     Screen('DrawDots', w, [xc*(3/2)+horiOffsets(2) yc+vertOffsets(2)], ex.fixSize, [255 255 255], [], 2);
