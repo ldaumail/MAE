@@ -556,7 +556,7 @@ end
 
 ex.runTime = GetSecs - ex.startRun;
 
-savedir = fullfile(ex.root,'data/static_MAE',sprintf('%s/%s_%s/',ex.version,subject,ex.version));
+savedir = fullfile(ex.root,'data/static_MAE',sprintf('stereo_%s/%s_%s/',ex.version,subject,ex.version));
 if ~exist(savedir); mkdir(savedir); end
 savename = fullfile(savedir, strcat(sprintf('/%s_static_MAE_%s_date%s_fix',subject,ex.version,num2str(ex.date)), '.mat'));
 %save(savename,'ex');
