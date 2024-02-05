@@ -24,14 +24,9 @@ end
 [keyboardIndices, productNames, ~] = GetKeyboardIndices ;
 deviceNumber = keyboardIndices(1);
 responseKeys = zeros(1,256);
-responseKeys(KbName('4'))=1; % button box 1
-responseKeys(KbName('1'))=1; % button box 2
+responseKeys(KbName('LeftArrow'))=1; % button box 
+responseKeys(KbName('RightArrow'))=1; % button box 
 responseKeys(KbName('0'))=1; % button box 3
-% responseKeys(KbName('4'))=1; % button box 4
-responseKeys(KbName('4$'))=1; % button box 1
-responseKeys(KbName('1!'))=1; % button box 2
-responseKeys(KbName('0)'))=1; % button box 3
-% responseKeys(KbName('4$'))=1; % button box 4
 
 Screen('Preference', 'SkipSyncTests', 0);
 
@@ -63,7 +58,7 @@ ex.stim.distFromFixDeg = (ex.stim.gaborHDeg+ex.stim.gapSizeDeg)/2;%3;%2; %1.5 %e
 % ex.stim.backgroundLum = [0 0 0; 0 0 0];
 ex.stim.backgroundLum = [30 30 30; 30 30 30];
 ex.stim.contrast = 0.15;
-ex.stim.contrastOffset = [(ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast); ex.stim.backgroundLum(2,1)./255];%+ex.stim.contrast/2;
+ex.stim.contrastOffset = (ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast);%+ex.stim.contrast/2;
 ex.stim.luminanceRange = 2*ex.stim.contrast*ex.stim.contrastOffset;
 ex.stim.contrastMultiplicator = ex.stim.luminanceRange./2;  % for sine wave
 
@@ -108,7 +103,7 @@ ex.bigFixSizeDeg = 0.5;
 
 %%%% conditions & layout (across blocks scale)
 
-ex.conds = {'MedContPhRight','MedContPhLeft','MedContPhCtRight','MedContPhCtLeft'};
+ex.conds = {'FrontPhRight','FrontPhLeft','BackPhCtRight','BackPhCtLeft'};
 ex.repsPerRun = [4 4 4 4];%[10 10 10 10];              % repetitions of each condition per run
 condIdx = 1:length(ex.conds); %[1,4,7]; %conditions we are interested to keep
 ex.conds = ex.conds(condIdx);
@@ -201,16 +196,10 @@ frameRate =  1/frameInt;%Screen('NominalFrameRate',w);
 flipTimes = [0:1/ex.flipsPerSec:1/(ex.stim.cycPerSec)]; %multiply frameInt by 60/12 = 5 to flip the image every 5 frames
 ex.stim.flipTimes = flipTimes(1:length(flipTimes)-1);
 
-nconds = length(ex.stim.contrastMultiplicator);
-ex.stim.phases = nan(nconds, length(ex.stim.flipTimes));
+ex.stim.leftPhases(1,:) = ((1:length(ex.stim.flipTimes))-1)*ex.stim.dphase;%(ex.stim.oscillation1(c,l,r,:).*180*ex.stim.cycles(1)+ ex.stim.oscillation2(c,l,r,:).*180*ex.stim.cycles(2))/2 + ex.stim.spatialPhase; %./ex.stimDur-2*pi*flipTimes./ex.stimDur make it oscillatory
 
-clear r l
-
-for l =1:nconds
-    
-    ex.stim.phases(l,:) = ((1:length(ex.stim.flipTimes))-1)*ex.stim.dphase;%(ex.stim.oscillation1(c,l,r,:).*180*ex.stim.cycles(1)+ ex.stim.oscillation2(c,l,r,:).*180*ex.stim.cycles(2))/2 + ex.stim.spatialPhase; %./ex.stimDur-2*pi*flipTimes./ex.stimDur make it oscillatory
-    
-end
+ex.stim.rightPhases(1,:) = circshift(ex.stim.leftPhases(1,:),4);%(+4)front
+ex.stim.rightPhases(2,:) = circshift(ex.stim.leftPhases(1,:),-4);%(-4)back
 
 
 flipTimesTest = [0:1/ex.flipsPerSec:ex.testLength(1)]; %multiply frameInt by 60/12 = 5 to flip the image every 5 frames
@@ -273,17 +262,28 @@ ex.stim.gapSize = round(ex.stim.gapSizeDeg*ex.ppd);
 
 %% Create sinewave grating frames saved for each repetition and each condition
 
-ex.rectSWave = nan(ex.rawGaborHeight,ex.rawGaborWidth,length(ex.test.oscillation1),nconds);
-ex.rectSWaveID = nan(length(ex.test.oscillation1),nconds);
-clear c r
+ex.leftSWave = nan(ex.rawGaborHeight,ex.rawGaborWidth,length(ex.stim.leftPhases));
+ex.leftSWaveID = nan(length(ex.stim.leftPhases),1);
 
-for l = 1:length(ex.stim.contrastMultiplicator)
-    for f =1:length(ex.test.oscillation1)
-        phase = ex.stim.phases(l,f);
-        ex.rectSWave(:,:,f,l) = makeSineGrating(ex.rawGaborHeight,ex.rawGaborWidth,ex.stim.spatialFreqDeg,...
-            ex.stim.orientation,phase,ex.stim.contrastOffset(l),ex.stim.contrastMultiplicator(l),...
+for f =1:length(ex.stim.leftPhases)
+    phase = ex.stim.leftPhases(f);
+    ex.leftSWave(:,:,f) = makeSineGrating(ex.rawGaborHeight,ex.rawGaborWidth,ex.stim.spatialFreqDeg,...
+        ex.stim.orientation,phase,ex.stim.contrastOffset,ex.stim.contrastMultiplicator,...
+        ex.ppd);
+    ex.leftSWaveID(f,1) = Screen('MakeTexture', w, squeeze(ex.leftSWave(:,:,f)));
+end
+
+
+ex.rightSWave = nan(ex.rawGaborHeight,ex.rawGaborWidth,length(ex.stim.leftPhases),2);
+ex.rightSWaveID = nan(length(ex.stim.leftPhases),2);
+
+for l = 1:length(ex.stim.rightPhases(:,1))
+    for f =1:length(ex.stim.rightPhases(1,:))
+        phase = ex.stim.rightPhases(l,f);
+        ex.rightSWave(:,:,f,l) = makeSineGrating(ex.rawGaborHeight,ex.rawGaborWidth,ex.stim.spatialFreqDeg,...
+            ex.stim.orientation,phase,ex.stim.contrastOffset,ex.stim.contrastMultiplicator,...
             ex.ppd);
-        ex.rectSWaveID(f,l) = Screen('MakeTexture', w, squeeze(ex.rectSWave(:,:,f,l)));
+        ex.rightSWaveID(f,l) = Screen('MakeTexture', w, squeeze(ex.rightSWave(:,:,f,l)));
     end
 end
 
@@ -334,10 +334,10 @@ xLb = xc/2+horiOffsets(1); %-20;
 yLb = yc+ex.stim.distFromFix+vertOffsets(1);
 
 %top right grating
-xRt = xc*(3/2)+horiOffsets(2)+20;
+xRt = xc*(3/2)+horiOffsets(2);
 yRt = yc-ex.stim.distFromFix+vertOffsets(2);
 %bottom right grating
-xRb = xc*(3/2)+horiOffsets(2)+20;
+xRb = xc*(3/2)+horiOffsets(2);
 yRb = yc+ex.stim.distFromFix+vertOffsets(2);
 
  
@@ -367,9 +367,9 @@ xLbg = xc/2;
 yLbg = yc;
 
 %% %%%% initial window - wait for backtick
-DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n report when the MAE effect on the test stimulus \n\n disappears by pressing 1 \n\n Press Space to start'... % :  '...
+DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n report when the MAE effect on the test stimulus disappears \n\n  by pressing the left arrow if test stimulus moved leftward, \n\n the right arrow if test stimulus moved rightward, \n\n or 0 if there was no MAE \n\n Press Space to start'... % :  '...
     ,xc/5+horiOffsets(1), yc/2+vertOffsets(1),[0 0 0]);
-DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n report when the MAE effect on the test stimulus \n\n disappears by pressing 1 \n\n Press Space to start'... % :  '...
+DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n report when the MAE effect on the test stimulus disappears \n\n  by pressing the left arrow if test stimulus moved leftward, \n\n the right arrow if test stimulus moved rightward, \n\n or 0 if there was no MAE \n\n Press Space to start'... % :  '...
     ,xc+xc/5+horiOffsets(2), yc/2+vertOffsets(2),[0 0 0]);
 
 Screen(w, 'Flip', 0);
@@ -390,7 +390,7 @@ cnt = 0; %trial count
 
 ex.responses = [];
 ex.responseTimes=[];
-ex.correctResp = [];
+ex.resp = [];
 
 % onOffs = [diff([0 ex.longFormBlocks])];
 % bLength = ex.blockLength(1);
@@ -441,17 +441,28 @@ for c = 1:length(ex.condShuffle)
             ex.rectCRRect =  CenterRectOnPoint([0 0 ex.rawGaborWidth ex.rawGaborHeight],xRt, yc+vertOffsets(1));
             Screen('DrawTexture', w, ex.blankGapID,[],ex.rectCRRect);
             if contains(condName, 'Right')
-                Screen('DrawTexture', w, ex.rectSWaveID(f,l),[],ex.rectLTRect);
-                Screen('DrawTexture', w, ex.rectSWaveID(f,l),[],ex.rectLBRect);
-                Screen('DrawTexture', w, ex.rectSWaveID(f,l),[],ex.rectRTRect);
-                Screen('DrawTexture', w, ex.rectSWaveID(f,l),[],ex.rectRBRect);
+                Screen('DrawTexture', w, ex.leftSWaveID(f),[],ex.rectLTRect);
+                Screen('DrawTexture', w, ex.leftSWaveID(f),[],ex.rectLBRect);
+                if contains(condName, 'Front')
+                    Screen('DrawTexture', w, ex.rightSWaveID(f,1),[],ex.rectRTRect);
+                    Screen('DrawTexture', w, ex.rightSWaveID(f,1),[],ex.rectRBRect);
+                elseif contains(condName, 'Back')
+                    Screen('DrawTexture', w, ex.rightSWaveID(f,2),[],ex.rectRTRect);
+                    Screen('DrawTexture', w, ex.rightSWaveID(f,2),[],ex.rectRBRect);
+                end
             elseif contains(condName, 'Left')
-                Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectLTRect);
-                Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectLBRect);
-                Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectRTRect);
-                Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectRBRect);
+                Screen('DrawTexture', w, ex.leftSWaveID(end-(f-1)),[],ex.rectLTRect);
+                Screen('DrawTexture', w, ex.leftSWaveID(end-(f-1)),[],ex.rectLBRect);
                 
-            end   
+                if contains(condName, 'Front')
+                    Screen('DrawTexture', w, ex.rightSWaveID(end-(f-1),1),[],ex.rectRTRect);
+                    Screen('DrawTexture', w, ex.rightSWaveID(end-(f-1),1),[],ex.rectRBRect);
+                elseif contains(condName, 'Back')
+                    Screen('DrawTexture', w, ex.rightSWaveID(end-(f-1),2),[],ex.rectRTRect);
+                    Screen('DrawTexture', w, ex.rightSWaveID(end-(f-1),2),[],ex.rectRBRect);
+                end
+                
+            end
         end
     Screen('DrawDots', w, [xc*(1/2)+horiOffsets(1) yc+vertOffsets(1)], ex.fixSize, [255 255 255], [], 2);
     Screen('DrawDots', w, [xc*(3/2)+horiOffsets(2) yc+vertOffsets(2)], ex.fixSize, [255 255 255], [], 2);
@@ -511,11 +522,18 @@ for c = 1:length(ex.condShuffle)
         end
         KbQueueStop();
         [pressed, firstPress]= KbQueueCheck();
-        if  (pressed == 1) &&  (firstPress(KbName('1!')) > 0 || firstPress(KbName('1')) > 0) %%|| (firstPress(KbName('4$')) > 0 || firstPress(KbName('4')) > 0)
+        if  (pressed == 1) && ((firstPress(KbName('RightArrow')) > 0 || firstPress( KbName('LeftArrow')) > 0)||(firstPress(KbName('0')) > 0)) %%
             ex.responses = [ex.responses, 1];
-            if (firstPress(KbName('1')) > 0)
-                ex.correctResp = [ex.correctResp, 1];
-                ex.responseTimes = [ex.responseTimes, firstPress(KbName('1')) - ex.startRun];
+            if (firstPress(KbName('RightArrow')) > 0)
+                ex.resp = [ex.resp, 1];
+                ex.responseTimes = [ex.responseTimes, firstPress(KbName('RightArrow')) - ex.startRun];
+            elseif (firstPress(KbName('LeftArrow')) > 0)
+                ex.resp = [ex.resp, 2];
+                ex.responseTimes = [ex.responseTimes, firstPress(KbName('RightArrow')) - ex.startRun];
+            elseif (firstPress(KbName('0')) > 0)
+                ex.resp = [ex.resp, 3];
+                ex.responseTimes = [ex.responseTimes, firstPress(KbName('0')) - ex.startRun];
+
             end
             pressed = 0;
         end
