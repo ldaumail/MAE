@@ -529,7 +529,7 @@ for c = 1:length(ex.condShuffle)
                 ex.responseTimes = [ex.responseTimes, firstPress(KbName('RightArrow')) - ex.startRun];
             elseif (firstPress(KbName('LeftArrow')) > 0)
                 ex.resp = [ex.resp, 2];
-                ex.responseTimes = [ex.responseTimes, firstPress(KbName('RightArrow')) - ex.startRun];
+                ex.responseTimes = [ex.responseTimes, firstPress(KbName('LefttArrow')) - ex.startRun];
             elseif (firstPress(KbName('0')) > 0)
                 ex.resp = [ex.resp, 3];
                 ex.responseTimes = [ex.responseTimes, firstPress(KbName('0')) - ex.startRun];
