@@ -51,7 +51,7 @@ ex.date = datestr(now,30);
 ex.stim.spatialFreqDeg = 0.36;%0.5/2;   % cycles per degree of visual angle
 ex.stim.orientation = [90]; %[90 180];                                                % in degrees
 ex.stim.gaborHDeg = 5.2;                                                   % in degrees of visual angle
-ex.stim.gaborWDeg = 8.8; 
+ex.stim.gaborWDeg = 8.8; %11.1;
 ex.stim.gapSizeDeg = 2.6;
 ex.stim.distFromFixDeg = (ex.stim.gaborHDeg+ex.stim.gapSizeDeg)/2;%3;%2; %1.5 %each grating edge 1.5 deg horizontal away from fixation (grating center 6 deg away)
 
@@ -72,7 +72,7 @@ ex.stim.disparity = 5; %in multiples of 6 deg
 %%%% sine wave grating timing (within block scale)
 ex.initialFixation = 6;        % in seconds
 ex.finalFixation = 2;          % in seconds
-ex.blockLength = 30;%60; %120; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
+ex.blockLength = 60; %120; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
 ex.testLength = 1;% in seconds
 ex.ITI1 = 2;
 ex.ITI2 = 1;% in seconds
@@ -198,11 +198,11 @@ frameRate =  1/frameInt;%Screen('NominalFrameRate',w);
 flipTimes = [0:1/ex.flipsPerSec:1/(ex.stim.cycPerSec)]; %multiply frameInt by 60/12 = 5 to flip the image every 5 frames
 ex.stim.flipTimes = flipTimes(1:length(flipTimes)-1);
 
-ex.stim.leftPhases(1,:) = circshift(((1:length(ex.stim.flipTimes))-1)*ex.stim.dphase,-ex.stim.disparity);%(ex.stim.oscillation1(c,l,r,:).*180*ex.stim.cycles(1)+ ex.stim.oscillation2(c,l,r,:).*180*ex.stim.cycles(2))/2 + ex.stim.spatialPhase; %./ex.stimDur-2*pi*flipTimes./ex.stimDur make it oscillatory
-ex.stim.leftPhases(2,:) = circshift(((1:length(ex.stim.flipTimes))-1)*ex.stim.dphase,ex.stim.disparity);
+ex.stim.leftPhases(1,:) = circshift(((1:length(ex.stim.flipTimes))-1)*ex.stim.dphase,-ex.stim.disparity);%front (ex.stim.oscillation1(c,l,r,:).*180*ex.stim.cycles(1)+ ex.stim.oscillation2(c,l,r,:).*180*ex.stim.cycles(2))/2 + ex.stim.spatialPhase; %./ex.stimDur-2*pi*flipTimes./ex.stimDur make it oscillatory
+ex.stim.leftPhases(2,:) = circshift(((1:length(ex.stim.flipTimes))-1)*ex.stim.dphase,ex.stim.disparity);%back
 
-ex.stim.rightPhases(1,:) = circshift(ex.stim.leftPhases(1,:),ex.stim.disparity);%(+4)front (changes for the right grating) 
-ex.stim.rightPhases(2,:) = circshift(ex.stim.leftPhases(1,:),-ex.stim.disparity);%(-4)back
+ex.stim.rightPhases(1,:) = circshift(((1:length(ex.stim.flipTimes))-1)*ex.stim.dphase,ex.stim.disparity);%(+4)front (changes for the right grating) 
+ex.stim.rightPhases(2,:) = circshift(((1:length(ex.stim.flipTimes))-1)*ex.stim.dphase,-ex.stim.disparity);%(-4)back
 
 
 flipTimesTest = [0:1/ex.flipsPerSec:ex.testLength(1)]; %multiply frameInt by 60/12 = 5 to flip the image every 5 frames
@@ -354,12 +354,12 @@ ex.blankGapID = Screen('MakeTexture', w, ex.blankGap);
 
 
 %% Create background for disparity effect
-ex.bg.ih = rect(4);
-ex.bg.iw = rect(3)/2;
+ex.bg.ih = rect(4)/2;
+ex.bg.iw = rect(3)/3;
 ex.bg.freq = 11; % line segments per square degree
 ex.bg.angle = 45;
 ex.bg.len = 16; %segment length in number of pixels 
-ex.background = makeRandomLines(ex.bg.ih,ex.bg.iw,ex.bg.freq,ex.bg.angle,ex.bg.len,ex.viewingDist,ex.stim.backgroundLum(1,:));
+ex.background = makeRandomLines(ex.bg.ih,ex.bg.iw,ex.bg.freq,ex.bg.angle,ex.bg.len,ex.viewingDist,ex.stim.backgroundLum(1,:), ex.ppd);
 ex.backgroundID = Screen('MakeTexture', w, ex.background);
 
 %%Right bg
@@ -428,8 +428,8 @@ for c = 1:length(ex.condShuffle)
         Screen('FillRect', w, ex.stim.backgroundLum(l,:));
         if nnz(find(ex.longFormStimOnSecs(n)))
             %Background Coordinates
-            ex.bgRectRight = CenterRectOnPoint([0 0 rect(3)/2 rect(4)], xRbg, yRbg);
-            ex.bgRectLeft = CenterRectOnPoint([0 0 rect(3)/2 rect(4)], xLbg, yLbg);
+            ex.bgRectRight = CenterRectOnPoint([0 0 ex.bg.iw ex.bg.ih], xRbg, yRbg);
+            ex.bgRectLeft = CenterRectOnPoint([0 0 ex.bg.iw ex.bg.ih], xLbg, yLbg);
             % Draw bg
             Screen('DrawTexture', w, ex.backgroundID,[], ex.bgRectRight);
             Screen('DrawTexture', w, ex.backgroundID,[], ex.bgRectLeft);
