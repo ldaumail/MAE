@@ -54,7 +54,7 @@ ex.stim.gaborHDeg = 5.2;                                                   % in 
 ex.stim.gaborWDeg = 8.8; %11.1;
 ex.stim.gapSizeDeg = 2.6;
 ex.stim.vertDistFromFixDeg = (ex.stim.gaborHDeg+ex.stim.gapSizeDeg)/2;%3;%2; %1.5 %each grating edge 1.5 deg horizontal away from fixation (grating center 6 deg away)
-ex.stim.horiDistFromFixDeg = ex.stim.gaborWDeg/2;
+ex.stim.horiDistFromFixDeg = ex.stim.gaborWDeg*3/8;
 
 % ex.stim.backgroundLum = [0 0 0; 0 0 0];
 ex.stim.backgroundLum = [30 30 30; 30 30 30];
