@@ -53,7 +53,8 @@ ex.stim.orientation = [90]; %[90 180];                                          
 ex.stim.gaborHDeg = 5.2;                                                   % in degrees of visual angle
 ex.stim.gaborWDeg = 8.8; %11.1;
 ex.stim.gapSizeDeg = 2.6;
-ex.stim.distFromFixDeg = (ex.stim.gaborHDeg+ex.stim.gapSizeDeg)/2;%3;%2; %1.5 %each grating edge 1.5 deg horizontal away from fixation (grating center 6 deg away)
+ex.stim.vertDistFromFixDeg = (ex.stim.gaborHDeg+ex.stim.gapSizeDeg)/2;%3;%2; %1.5 %each grating edge 1.5 deg horizontal away from fixation (grating center 6 deg away)
+ex.stim.horiDistFromFixDeg = ex.stim.gaborWDeg/2;
 
 % ex.stim.backgroundLum = [0 0 0; 0 0 0];
 ex.stim.backgroundLum = [30 30 30; 30 30 30];
@@ -66,8 +67,7 @@ ex.stim.maxLum = 255*(ex.stim.contrastOffset+ex.stim.contrastMultiplicator);
 ex.stim.minLum = 255*(ex.stim.contrastOffset-ex.stim.contrastMultiplicator);
 ex.stim.contrast = (ex.stim.maxLum-ex.stim.minLum)./(ex.stim.maxLum+ex.stim.minLum);
 %% Disparity 
-
-ex.stim.disparity = 5; %in multiples of 6 deg
+ex.stim.disparity = 4; %in multiples of 6 deg
 %% Background Luminance level for phantom control conditions
 %%%% sine wave grating timing (within block scale)
 ex.initialFixation = 6;        % in seconds
@@ -95,7 +95,8 @@ ex.test.contrastMultiplicator = ex.test.luminanceRange/2;  % for sine wave 0.5 =
 %0.2+0.7/2;%0.425;
 ex.test.gaborHDeg = 1.6; %ex.stim.gapSizeDeg*(2/3);                                                  % in degrees of visual angle
 ex.test.gaborWDeg = 1.6; %ex.stim.gaborWDeg;
-ex.test.distFromFixDeg = 0; % in degrees of visual angle, grating center 2 deg away (edge 1 deg away)
+ex.test.vertDistFromFixDeg = 0; % in degrees of visual angle, grating center 2 deg away (edge 1 deg away)
+ex.test.horiDistFromFixDeg = 3;
 ex.test.cycPerSec = ex.stim.cycPerSec;
 ex.testDur = (1/ex.test.cycPerSec);        % in seconds. 1.77 sec refers to sine wave grating 1.77 = 2cycles/1.13cyc.sec-1 mutiplied by 2 for back and forth
 
@@ -249,14 +250,16 @@ ex.gaborHeight = round(ex.stim.gaborHDeg*ex.ppd);                 % in pixels, t
 ex.gaborWidth = round(ex.stim.gaborWDeg*ex.ppd);                 % in pixels, the size of our objects
 ex.rawGaborHeight = ex.gaborHeight;
 ex.rawGaborWidth = ex.gaborWidth;
-ex.stim.distFromFix = round(ex.stim.distFromFixDeg*ex.ppd);
+ex.stim.vertDistFromFix = round(ex.stim.vertDistFromFixDeg*ex.ppd);
+ex.stim.horiDistFromFix = round(ex.stim.horiDistFromFixDeg*ex.ppd);
 
 %%%% scale the test params for the screen
 ex.probeHeight = round(ex.test.gaborHDeg*ex.ppd);                 % in pixels, the size of our objects
 ex.probeWidth = round(ex.test.gaborWDeg*ex.ppd);                 % in pixels, the size of our objects
 ex.rawProbeHeight = ex.probeHeight*1;
 ex.rawProbeWidth = ex.probeWidth*1;
-ex.test.distFromFix = round(ex.test.distFromFixDeg*ex.ppd);
+ex.test.vertDistFromFix = round(ex.test.vertDistFromFixDeg*ex.ppd);
+ex.test.horiDistFromFix = round(ex.test.horiDistFromFixDeg*ex.ppd);
 
 %%%scale the fixation params for the screen
 ex.fixSize = round(ex.fixSizeDeg*ex.ppd);
@@ -331,31 +334,29 @@ xc = rect(3)/2; % rect and center, with the flexibility to resize & shift center
 yc = rect(4)/2; %+e.vertOffset;
 
 %top left grating
-xLt = xc/2+horiOffsets(1); %-20;
-yLt = yc-ex.stim.distFromFix+vertOffsets(1);
+xLt = xc/2+horiOffsets(1)-ex.stim.horiDistFromFix; %-20;
+yLt = yc-ex.stim.vertDistFromFix+vertOffsets(1);
 %bottom left grating
-xLb = xc/2+horiOffsets(1); %-20;
-yLb = yc+ex.stim.distFromFix+vertOffsets(1);
+xLb = xc/2+horiOffsets(1)-ex.stim.horiDistFromFix; %-20;
+yLb = yc+ex.stim.vertDistFromFix+vertOffsets(1);
 
 %top right grating
-xRt = xc*(3/2)+horiOffsets(2);
-yRt = yc-ex.stim.distFromFix+vertOffsets(2);
+xRt = xc*(3/2)+horiOffsets(2)-ex.stim.horiDistFromFix;
+yRt = yc-ex.stim.vertDistFromFix+vertOffsets(2);
 %bottom right grating
-xRb = xc*(3/2)+horiOffsets(2);
-yRb = yc+ex.stim.distFromFix+vertOffsets(2);
+xRb = xc*(3/2)+horiOffsets(2)-ex.stim.horiDistFromFix;
+yRb = yc+ex.stim.vertDistFromFix+vertOffsets(2);
 
  
-%% Create rectangular masks to make an intervening blank gap
-% ph1LPaperture=Screen('OpenOffscreenwindow', w, ex.stim.backgroundLum(l,:));
-% Screen('FillRect',ph1LPaperture, [255 255 255 0], [xLl yLt xLr yLb]); %Left grating window
-% Screen('FillRect',ph1LPaperture, [255 255 255 0], [xRl yRt xRr yRb]); %Right grating window
+%% Create a rectangular intervening blank gap
+
 ex.blankGap = ones(ex.stim.gapSize,ex.rawGaborWidth).*ex.stim.backgroundLum(1,1);
 ex.blankGapID = Screen('MakeTexture', w, ex.blankGap);
 
 
-%% Create background for disparity effect
+%% Create random lines background for enhancing disparity effect
 ex.bg.ih = rect(4)/2;
-ex.bg.iw = rect(3)/3;
+ex.bg.iw = rect(3)*4/15;
 ex.bg.freq = 11; % line segments per square degree
 ex.bg.angle = 45;
 ex.bg.len = 16; %segment length in number of pixels 
@@ -363,17 +364,21 @@ ex.background = makeRandomLines(ex.bg.ih,ex.bg.iw,ex.bg.freq,ex.bg.angle,ex.bg.l
 ex.backgroundID = Screen('MakeTexture', w, ex.background);
 
 %%Right bg
-xRbg = 3*xc/2;
+xRbg = 3*xc/2-ex.stim.horiDistFromFix;
 yRbg = yc;
 
 %%Left bg
-xLbg = xc/2;
+xLbg = xc/2-ex.stim.horiDistFromFix;
 yLbg = yc;
+%% Create blank test background 
+
+ex.test.blankbg = ones(ex.stim.gapSize+2*ex.rawGaborHeight,ex.rawGaborWidth).*ex.stim.backgroundLum(1,1);
+ex.test.blankbgID = Screen('MakeTexture', w, ex.test.blankbg);
 
 %% %%%% initial window - wait for backtick
-DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n report when the MAE effect on the test stimulus disappears \n\n  by pressing the left arrow if test stimulus moved leftward, \n\n the right arrow if test stimulus moved rightward, \n\n or 0 if there was no MAE \n\n Press Space to start'... % :  '...
+DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n report when the MAE effect on the \n\n test stimulus disappears \n\n  by pressing the left arrow if \n\n test stimulus moved leftward, \n\n the right arrow if test \n\n stimulus moved rightward, \n\n or 0 if there was no MAE \n\n Press Space to start'... % :  '...
     ,xc/5+horiOffsets(1), yc/2+vertOffsets(1),[0 0 0]);
-DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n report when the MAE effect on the test stimulus disappears \n\n  by pressing the left arrow if test stimulus moved leftward, \n\n the right arrow if test stimulus moved rightward, \n\n or 0 if there was no MAE \n\n Press Space to start'... % :  '...
+DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n report when the MAE effect on the \n\n test stimulus disappears \n\n  by pressing the left arrow if \n\n test stimulus moved leftward, \n\n the right arrow if test \n\n stimulus moved rightward, \n\n or 0 if there was no MAE \n\n Press Space to start'... % :  '...
     ,xc+xc/5+horiOffsets(2), yc/2+vertOffsets(2),[0 0 0]);
 
 Screen(w, 'Flip', 0);
@@ -425,7 +430,7 @@ for c = 1:length(ex.condShuffle)
         ex.longFormBlocks(n)
         %%%% draw sine wave grating stimulus %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-        Screen('FillRect', w, ex.stim.backgroundLum(l,:));
+        Screen('FillRect', w, [1 1 1]);
         if nnz(find(ex.longFormStimOnSecs(n)))
             %Background Coordinates
             ex.bgRectRight = CenterRectOnPoint([0 0 ex.bg.iw ex.bg.ih], xRbg, yRbg);
@@ -476,9 +481,16 @@ for c = 1:length(ex.condShuffle)
     Screen('DrawDots', w, [xc*(3/2)+horiOffsets(2) yc+vertOffsets(2)], ex.fixSize, [255 255 255], [], 2);
         %% Draw Test stimulus on the screen
         if length(ex.longFormBlocks(1:n))/60 >= ex.blockLength && cnt == 0 %&& length(ex.longFormBlocks(1:n))/60 < ex.blockLength+ex.testLength%(cnt/2 == 1 && GetSecs-time >= 0) && c ~= length(ex.condShuffle)
-
-            ex.lcLRect =  CenterRectOnPoint([0 0 ex.rawProbeWidth ex.rawProbeHeight],xc/2+horiOffsets(1),yc+vertOffsets(1));
-            ex.lcRRect =  CenterRectOnPoint([0 0 ex.rawProbeWidth ex.rawProbeHeight],xc*(3/2)+horiOffsets(2),yc+vertOffsets(2));
+            % Background Coordinates
+            ex.bgRectRight = CenterRectOnPoint([0 0 ex.bg.iw ex.bg.ih], xRbg, yRbg);
+            ex.bgRectLeft = CenterRectOnPoint([0 0 ex.bg.iw ex.bg.ih], xLbg, yLbg);
+            
+            % Draw blank bg
+            Screen('DrawTexture', w, ex.test.blankbgID,[], ex.bgRectRight);
+            Screen('DrawTexture', w, ex.test.blankbgID,[], ex.bgRectLeft);
+            
+            ex.lcLRect =  CenterRectOnPoint([0 0 ex.rawProbeWidth ex.rawProbeHeight],xc/2+horiOffsets(1)-ex.test.horiDistFromFix,yc+vertOffsets(1));
+            ex.lcRRect =  CenterRectOnPoint([0 0 ex.rawProbeWidth ex.rawProbeHeight],xc*(3/2)+horiOffsets(2)-ex.test.horiDistFromFix,yc+vertOffsets(2));
             % Left test stim
             Screen('DrawTexture', w, ex.testStimID(1,l),[],ex.lcLRect,[],[],[]);
             %Fixation
@@ -508,6 +520,7 @@ for c = 1:length(ex.condShuffle)
             WaitSecs(ex.ITI1);
             if c ~= length(ex.condShuffle)
                 %             [ex.respT(cnt),~,~] =KbWait(deviceNumber,2);
+                Screen('FillRect', w, ex.stim.backgroundLum(ceil(ex.condShuffle(c+1)/2),:));
                 DrawFormattedText(w,'Press Space whenever \n\n you feel ready',xc/4+horiOffsets(1), yc/2+vertOffsets(1),[0 0 0]); %left instruction
                 DrawFormattedText(w,'Press Space whenever \n\n you feel ready',xc+xc/4+horiOffsets(2), yc/2+vertOffsets(2),[0 0 0]); %right instruction
                %% Fixation
