@@ -1,4 +1,4 @@
-function [background] = makeRandomLines(ih,iw,freq,angle,len, viewDist, backgroundLum);
+function [background] = makeRandomLines(ih,iw,freq,angle,len, viewDist, backgroundLum, pixPerDeg);
 %Loic Daumail, 01-31-2024
 %% Random Lines
 % iw = 1280/2; %devide by 2 since the screen will be split in half for each mirror of the stereoscope, in pixels
@@ -15,8 +15,8 @@ function [background] = makeRandomLines(ih,iw,freq,angle,len, viewDist, backgrou
 id = round(sqrt(iw^2+ih^2)); %we compute the diagonal distance of the screen: as we will apply a rotation, the matrix that we will initially fill with line segments will be id x id in dimensions
 % pixelpitch = .252; %same for horizontal and vertical in mm
 viewdist = viewDist;%46; %in cm
-iwd = 47;%asind( iw*pixelpitch/(viewdist*10)); %screen dimensions in degrees
-ihd = 35.25;%asind( ih*pixelpitch/(viewdist*10));
+iwd = iw/pixPerDeg;%asind( iw*pixelpitch/(viewdist*10)); %screen dimensions in degrees
+ihd = ih/pixPerDeg;%asind( ih*pixelpitch/(viewdist*10));
 idd = round(sqrt(iwd^2+ihd^2));%asind( id*pixelpitch/(viewdist*10));
 
 %we want this density of line segments:
