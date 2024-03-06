@@ -362,14 +362,14 @@ ex.bg.angle = 45;
 ex.bg.len = 16; %segment length in number of pixels 
 ex.background = makeRandomLines(ex.bg.ih,ex.bg.iw,ex.bg.freq,ex.bg.angle,ex.bg.len,ex.viewingDist,ex.stim.backgroundLum(1,:), ex.ppd);
 ex.backgroundID = Screen('MakeTexture', w, ex.background);
-
-%%Right bg
-xRbg = 3*xc/2-ex.stim.horiDistFromFix;
-yRbg = yc;
-
 %%Left bg
-xLbg = xc/2-ex.stim.horiDistFromFix;
-yLbg = yc;
+xLbg = xc/2-ex.stim.horiDistFromFix+horiOffsets(1);
+yLbg = yc+vertOffsets(1);
+%%Right bg
+xRbg = 3*xc/2-ex.stim.horiDistFromFix+horiOffsets(2);
+yRbg = yc+vertOffsets(2);
+
+
 %% Create blank test background 
 
 ex.test.blankbg = ones(ex.stim.gapSize+2*ex.rawGaborHeight,ex.rawGaborWidth).*ex.stim.backgroundLum(1,1);
