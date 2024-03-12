@@ -60,7 +60,8 @@ ex.stim.spatialFreqDeg = 0.5/2;   % cycles per degree of visual angle
 ex.stim.orientation = [180]; %[90 180];                                                % in degrees
 ex.stim.gaborHDeg = 12;                                                   % in degrees of visual angle
 ex.stim.gaborWDeg = 6; 
-ex.stim.distFromFixDeg = 2+ex.stim.gaborWDeg/2;%3;%2; %1.5 %each grating edge 1.5 deg horizontal away from fixation (grating center 6 deg away)
+ex.stim.gapSizeDeg = 4;
+ex.stim.distFromFixDeg = (ex.stim.gapSizeDeg+ex.stim.gaborWDeg)/2;  %each grating center deg horizontal away from fixation (grating center 6 deg away)
 
 ex.stim.backgroundLum = [60 60 60];
 ex.stim.contrast = [0.03 0.03 0.15 0.15 0.60 0.60];
@@ -73,14 +74,6 @@ ex.stim.maxLum = 255*(ex.stim.contrastOffset+ex.stim.contrastMultiplicator);
 ex.stim.minLum = 255*(ex.stim.contrastOffset-ex.stim.contrastMultiplicator);
 ex.stim.contrast = (ex.stim.maxLum-ex.stim.minLum)./(ex.stim.maxLum+ex.stim.minLum);
 
-% ex.stim.luminanceRange = [0.03 0.03 0.15 0.15 0.7 0.7]; %0.15;%% in %, maybe?? %here the number of stimulus contrast levels is the number of different conditions
-% ex.stim.contrastMultiplicator = ex.stim.luminanceRange./2;  % for sine wave
-% ex.stim.contrastOffset = [0.55 0.55 0.55 0.55 0.55 0.55];%0.2+0.7/2 = 0.55    0.425+ex.stim.contrastMultiplicator; %.5 corresponds to 255/2 = 127.5 , 0.425*255 = 108.375, 0.35*255 = 89.25;                                  % for procedural gabor
-% ex.stim.maxLum = 255*(ex.stim.contrastOffset+ex.stim.contrastMultiplicator);
-% ex.stim.minLum = 255*(ex.stim.contrastOffset-ex.stim.contrastMultiplicator);
-% ex.stim.contrast = (ex.stim.maxLum-ex.stim.minLum)./(ex.stim.maxLum+ex.stim.minLum);
-
-% ex.stim.backgroundLum = [136.425 136.425 136.425; 140.25 140.25 140.25; 121.125 121.125 121.125; 140.25 140.25 140.25; 51 51 51; 140.25 140.25 140.25];%[108.3750  108.3750  108.3750]; %repmat(min(min(squeeze(ex.rectSWave(1,1,:,:)),[],1)), [1,3]);
 %% Background Luminance levels for each phantom condition
 % 255*(0.55-0.03/2) =136.4250
 % 255*(0.55-0.15/2) =121.125
@@ -105,19 +98,12 @@ ex.stim.dphase = ex.stim.motionRate/ex.flipsPerSec; %degrees per flip
 
 
 %%%% Test stimulus: counterphasing grating
-% ex.test.spatialFreqDeg = 2;
 ex.test.contrastOffset = ex.stim.backgroundLum(1,1)./255;% 
 ex.test.contrast = 0.1;
 ex.test.luminanceRange = 2*ex.test.contrast*ex.test.contrastOffset;%0.1; %linspace(0.01,0.20,10);%[0.05, 0.10, 0.15];                                                 % in %, maybe?? %here the number of stimulus contrast levels is the number of different conditions
 ex.test.contrastMultiplicator = ex.test.luminanceRange/2;  % for sine wave 0.5 = 100% contrast, 0.2 = 40%
-
-%0.2+0.7/2;%0.425;
-% ex.test.maxLum = 255*(ex.test.contrastOffset+ex.test.contrastMultiplicator);
-% ex.test.minLum = 255*(ex.test.contrastOffset-ex.test.contrastMultiplicator);
-% ex.test.contrast = (ex.test.maxLum-ex.test.minLum)./(ex.test.maxLum+ex.test.minLum);
-% ex.test.orientation = [45 135];
 ex.test.gaborHDeg = ex.stim.gaborHDeg;                                                  % in degrees of visual angle
-ex.test.gaborWDeg = (2/3)*4;%4;%
+ex.test.gaborWDeg = (2/3)*ex.stim.gapSizeDeg;%4;%
 ex.test.distFromFixDeg = 0; % in degrees of visual angle, grating center 2 deg away (edge 1 deg away)
 ex.test.cycPerSec = ex.stim.cycPerSec;
 ex.testDur = (1/ex.test.cycPerSec);        % in seconds. 1.77 sec refers to sine wave grating 1.77 = 2cycles/1.13cyc.sec-1 mutiplied by 2 for back and forth
@@ -144,8 +130,7 @@ ex.yoffsetDeg = 0;%4; %degrees of visual angle
 ex.conds = {'LowContPhUp','LowContPhDown','LowContPhCtUp','LowContPhCtDown',...
     'MedContPhUp','MedContPhDown','MedContPhCtUp','MedContPhCtDown', ...%
     'HighContPhUp','HighContPhDown','HighContPhCtUp','HighContPhCtDown'
-    %Here, the Left/Right indicator in the condition name corresponds to the phantom grating pair location on the screen 
-    }; 
+       }; 
 ex.repsPerRun = [16 16 16 16 16 16 16 16 16 16 16 16];              % repetitions of each condition per run
 condIdx = 1:length(ex.conds); %[1,4,7]; %conditions we are interested to keep
 ex.conds = ex.conds(condIdx);
@@ -155,16 +140,10 @@ ex.numConds = length(ex.conds);
 % later, to have the conditions randomized within each block
 
 ex.numBlocks = sum(ex.repsPerRun);
-% ex.test.motDir = repmat([1 2], 1, ex.numBlocks/2);
 ex.condShuffle = [];
 for i =1:ex.repsPerRun(1)
    ex.condShuffle = [ex.condShuffle, Shuffle(1:length(ex.conds))];
 end
-%  ex.condShuffle = [Shuffle([ex.condsOrdered])];
-%  ex.repsPerRun = 8;
-% for i =1:ex.repsPerRun
-%     ex.condShuffle = [ex.condShuffle, Shuffle([ex.numConds/2+1:ex.numConds])];
-% end
 
 ex.totalTime = [];
 for t =1:length(ex.blockLength) %there is a different block length for every drifting speed
@@ -223,7 +202,7 @@ end
 Screen(w, 'TextSize', ex.fontSize);
 Screen('BlendFunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); % Set up alpha-blending for smooth (anti-aliased) lines
 
-%gamma correction, file prepared for room 425
+%gamma correction, file prepared for room 417
 if ex.gammaCorrection
     % Gamma correction (run phase2_photometry.mat in 417C computer, get gamma
     % table)
@@ -244,9 +223,7 @@ ex.stim.phases = nan(nconds, length(ex.stim.flipTimes));
 clear r l
 
 for l =1:nconds
-    
-    ex.stim.phases(l,:) = ((1:length(ex.stim.flipTimes))-1)*ex.stim.dphase;%(ex.stim.oscillation1(c,l,r,:).*180*ex.stim.cycles(1)+ ex.stim.oscillation2(c,l,r,:).*180*ex.stim.cycles(2))/2 + ex.stim.spatialPhase; %./ex.stimDur-2*pi*flipTimes./ex.stimDur make it oscillatory
-    
+    ex.stim.phases(l,:) = ((1:length(ex.stim.flipTimes))-1)*ex.stim.dphase;%(ex.stim.oscillation1(c,l,r,:).*180*ex.stim.cycles(1)+ ex.stim.oscillation2(c,l,r,:).*180*ex.stim.cycles(2))/2 + ex.stim.spatialPhase; %./ex.stimDur-2*pi*flipTimes./ex.stimDur make it oscillatory  
 end
 
 
