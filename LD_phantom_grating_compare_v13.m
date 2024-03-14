@@ -62,7 +62,7 @@ ex.stim.spatialFreqDeg = 0.5/2;   % cycles per degree of visual angle
 ex.stim.orientation = [90]; %[90 180];                                                % in degrees
 ex.stim.gaborHDeg = 6;                                                   % in degrees of visual angle
 ex.stim.gaborWDeg = 12; 
-ex.stim.gapSizeDeg = 4;
+ex.stim.gapSizeDeg = 2.6;
 ex.stim.distFromFixDeg = (ex.stim.gapSizeDeg+ex.stim.gaborHDeg)/2;  %each grating center deg horizontal away from fixation (grating center 6 deg away)
 
 ex.stim.backgroundLum = [60 60 60];
@@ -84,7 +84,7 @@ ex.betweenBlocks = 2;          % in seconds
 
 ex.flipsPerSec = 60;  % 60;         % number of phase changes we want from the visual stimulus, and thus the number of times we want to change visual stimulation on the screen
 ex.flipWin = 1/ex.flipsPerSec;         % in seconds then actually in 1 sec the stimuli will change 12 times 
-ex.stim.cycPerSec = 2; %drifting speed in cycles of grating per sec
+ex.stim.cycPerSec = 1; %drifting speed in cycles of grating per sec
 ex.stim.motionRate = 360*ex.stim.cycPerSec; %drifting speed in degrees of visual angle per sec
 ex.stim.dphase = ex.stim.motionRate/ex.flipsPerSec; %degrees per flip
 

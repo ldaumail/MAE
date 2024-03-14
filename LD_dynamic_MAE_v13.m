@@ -55,7 +55,7 @@ ex.stim.spatialFreqDeg = 0.5/2;   % cycles per degree of visual angle
 ex.stim.orientation = [90]; %[90 180];                                                % in degrees
 ex.stim.gaborHDeg = 6;                                                   % in degrees of visual angle
 ex.stim.gaborWDeg = 12; 
-ex.stim.gapSizeDeg = 4;
+ex.stim.gapSizeDeg = 2.6;
 ex.stim.distFromFixDeg = (ex.stim.gapSizeDeg+ex.stim.gaborHDeg)/2;  %each grating center deg horizontal away from fixation (grating center 6 deg away)
 
 ex.stim.backgroundLum = [60 60 60];
@@ -87,7 +87,7 @@ ex.stim.dphase = ex.stim.motionRate/ex.flipsPerSec; %degrees per flip
 
 %%%% Test stimulus: counterphasing grating
 ex.test.contrastOffset = ex.stim.backgroundLum(1,1)./255;% 
-ex.test.contrast = 0.1;
+ex.test.contrast = 0.07;
 ex.test.luminanceRange = 2*ex.test.contrast*ex.test.contrastOffset;%0.1; %linspace(0.01,0.20,10);%[0.05, 0.10, 0.15];                                                 % in %, maybe?? %here the number of stimulus contrast levels is the number of different conditions
 ex.test.contrastMultiplicator = ex.test.luminanceRange/2;  % for sine wave 0.5 = 100% contrast, 0.2 = 40%
 ex.test.gaborHDeg = (2/3)*ex.stim.gapSizeDeg;                                                  % in degrees of visual angle

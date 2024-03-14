@@ -71,25 +71,18 @@ ex.stim.contrast = (ex.stim.maxLum-ex.stim.minLum)./(ex.stim.maxLum+ex.stim.minL
 
 
 
-%% Background Luminance levels for each phantom condition
-% 255*(0.55-0.03/2) =136.4250
-% 255*(0.55-0.15/2) =121.125
-% 255*(0.55-0.7/2) = 51
-%% Background Luminance level for phantom control conditions
-%0.55*255 = 140.25
-
 %%%% sine wave grating timing (within block scale)
 ex.initialFixation = 6;        % in seconds
 ex.finalFixation = 2;          % in seconds
 ex.blockLength = 60; %120; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
 ex.testLength = 1;% in seconds
-ex.ITI1 = 2;
-ex.ITI2 = 1;% in seconds
+ex.ITI1 = 1;
+ex.ITI2 = 2;% in seconds
 % ex.ITI3 = 2; %+9 sec break every 10 trial
 % ex.betweenBlocks = 2;          % in seconds
 ex.flipsPerSec = 60;  % 60;         % number of phase changes we want from the visual stimulus, and thus the number of times we want to change visual stimulation on the screen
 ex.flipWin = 1/ex.flipsPerSec;         % in seconds then actually in 1 sec the stimuli will change 12 times 
-ex.stim.cycPerSec = 1; % 
+ex.stim.cycPerSec = 2; % 
 ex.stim.motionRate = 360*ex.stim.cycPerSec; %drifting speed in degrees of visual angle per sec
 ex.stim.dphase = ex.stim.motionRate/ex.flipsPerSec; %degrees per flip
 
@@ -97,12 +90,12 @@ ex.stim.dphase = ex.stim.motionRate/ex.flipsPerSec; %degrees per flip
 %%%% Test stimulus: counterphasing grating
 ex.test.spatialFreqDeg = ex.stim.spatialFreqDeg;
 ex.test.contrast = 0.07;
-ex.test.contrastOffset = (ex.stim.backgroundLum(1,1)./255)./(1-ex.test.contrast);%ex.stim.backgroundLum(:,1)./255;% 
+ex.test.contrastOffset = ex.stim.backgroundLum(1,1)./255; %(ex.stim.backgroundLum(1,1)./255)./(1-ex.test.contrast);%ex.stim.backgroundLum(:,1)./255;% 
 ex.test.luminanceRange = 2*ex.test.contrast*ex.test.contrastOffset;%0.1; %linspace(0.01,0.20,10);%[0.05, 0.10, 0.15];                                                 % in %, maybe?? %here the number of stimulus contrast levels is the number of different conditions
 ex.test.contrastMultiplicator = ex.test.luminanceRange/2;  % for sine wave 0.5 = 100% contrast, 0.2 = 40%
 
 %0.2+0.7/2;%0.425;
-ex.test.gaborHDeg = ex.stim.gapSizeDeg; %ex.stim.gapSizeDeg*(2/3);                                                  % in degrees of visual angle
+ex.test.gaborHDeg = (2/3)*ex.stim.gapSizeDeg; %ex.stim.gapSizeDeg*(2/3);                                                  % in degrees of visual angle
 ex.test.gaborWDeg = ex.stim.gaborWDeg; %ex.stim.gaborWDeg;
 ex.test.distFromFixDeg = 0; % in degrees of visual angle, grating center 2 deg away (edge 1 deg away)
 ex.test.cycPerSec = ex.stim.cycPerSec;
