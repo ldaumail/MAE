@@ -55,7 +55,7 @@ ex.stim.spatialFreqDeg = 0.5/2; %0.36;%  % cycles per degree of visual angle
 ex.stim.orientation = [90]; %[90 180];                                                % in degrees
 ex.stim.gaborHDeg = 6; %5.2;                                                   % in degrees of visual angle
 ex.stim.gaborWDeg = 12; %8.8; 
-ex.stim.gapSizeDeg = 4; %2.6;
+ex.stim.gapSizeDeg = 2.6; %4; 
 ex.stim.distFromFixDeg = (ex.stim.gaborHDeg+ex.stim.gapSizeDeg)/2;%3;%2; %1.5 %each grating edge 1.5 deg horizontal away from fixation (grating center 6 deg away)
 
 % ex.stim.backgroundLum = [0 0 0; 0 0 0];
@@ -81,7 +81,7 @@ ex.stim.contrast = (ex.stim.maxLum-ex.stim.minLum)./(ex.stim.maxLum+ex.stim.minL
 %%%% sine wave grating timing (within block scale)
 ex.initialFixation = 6;        % in seconds
 ex.finalFixation = 2;          % in seconds
-ex.blockLength = 30; %120; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
+ex.blockLength = 60; %120; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
 ex.testLength = 1;% in seconds
 ex.ITI1 = 2;
 ex.ITI2 = 1;% in seconds
@@ -380,7 +380,7 @@ ylineTop = yc - ex.lineH/2;
 
 
 %% %%%% initial window - wait for backtick
-DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n report when the MAE effect on the test stimulus disappears \n\n  by pressing the left arrow if test stimulus moved leftward, \n\n the right arrow if test stimulus moved rightward, \n\n or down arrow if there was no MAE \n\n Press Space to start'... % :  '...
+DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n report when the MAE effect on the test stimulus disappears \n\n  by pressing the left arrow if test stimulus appeared to move leftward, \n\n the right arrow if test stimulus appeared to move rightward, \n\n or down arrow if there was no MAE \n\n Press Space to start'... % :  '...
     ,xc/2, yc/2,[0 0 0]);
 Screen(w, 'Flip', 0);
 %WaitSecs(2);
