@@ -60,9 +60,10 @@ ex.stim.distFromFixDeg = (ex.stim.gaborHDeg+ex.stim.gapSizeDeg)/2;%3;%2; %1.5 %e
 
 % ex.stim.backgroundLum = [0 0 0; 0 0 0];
 ex.stim.backgroundLum = [60 60 60];
-ex.stim.contrast = 0.15;
-ex.stim.contrastOffset = [(ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast); ex.stim.backgroundLum(1,1)./255];%ex.stim.backgroundLum(2,1)./255 ;+ex.stim.contrast/2;
-ex.stim.luminanceRange = 2*ex.stim.contrast*ex.stim.contrastOffset;
+ex.stim.contrast = [0.03 0.03 0.15 0.15 0.60 0.60];
+ex.stim.contrastOffset = [(ex.stim.backgroundLum(1)./255)./(1-ex.stim.contrast(1)), ex.stim.backgroundLum(1)./255, (ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast(3)),...
+    ex.stim.backgroundLum(1)./255,(ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast(5)), ex.stim.backgroundLum(1)./255];%+ex.stim.contrast/2;
+ex.stim.luminanceRange = 2*ex.stim.contrast.*ex.stim.contrastOffset;
 ex.stim.contrastMultiplicator = ex.stim.luminanceRange./2;  % for sine wave
 
 ex.stim.maxLum = 255*(ex.stim.contrastOffset+ex.stim.contrastMultiplicator);
@@ -74,7 +75,7 @@ ex.stim.contrast = (ex.stim.maxLum-ex.stim.minLum)./(ex.stim.maxLum+ex.stim.minL
 %%%% sine wave grating timing (within block scale)
 ex.initialFixation = 6;        % in seconds
 ex.finalFixation = 2;          % in seconds
-ex.blockLength = 60; %120; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
+ex.blockLength = 45; %120; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
 ex.testLength = 1;% in seconds
 ex.ITI1 = 1;
 ex.ITI2 = 2;% in seconds
@@ -82,7 +83,7 @@ ex.ITI2 = 2;% in seconds
 % ex.betweenBlocks = 2;          % in seconds
 ex.flipsPerSec = 60;  % 60;         % number of phase changes we want from the visual stimulus, and thus the number of times we want to change visual stimulation on the screen
 ex.flipWin = 1/ex.flipsPerSec;         % in seconds then actually in 1 sec the stimuli will change 12 times 
-ex.stim.cycPerSec = 2; % 
+ex.stim.cycPerSec = 1; % 
 ex.stim.motionRate = 360*ex.stim.cycPerSec; %drifting speed in degrees of visual angle per sec
 ex.stim.dphase = ex.stim.motionRate/ex.flipsPerSec; %degrees per flip
 
@@ -120,8 +121,12 @@ ex.stim.horiDistFromFixDeg = ex.stim.gaborWDeg*3/8;
 
 %%%% conditions & layout (across blocks scale)
 
-ex.conds = {'MedContPhRight','MedContPhLeft','MedContPhCtRight','MedContPhCtLeft'};
-ex.repsPerRun = [4 4 4 4];%[10 10 10 10];              % repetitions of each condition per run
+%ex.conds = {'MedContPhRight','MedContPhLeft','MedContPhCtRight','MedContPhCtLeft'};
+ex.conds = {'LowContPhRight','LowContPhLeft','LowContPhCtRight','LowContPhCtLeft',...
+    'MedContPhRight','MedContPhLeft','MedContPhCtRight','MedContPhCtLeft', ...%
+    'HighContPhRight','HighContPhLeft','HighContPhCtRight','HighContPhCtLeft'
+       }; 
+ex.repsPerRun = [5 5 5 5 5 5 5 5 5 5 5 5];%[10 10 10 10];              % repetitions of each condition per run
 condIdx = 1:length(ex.conds); %[1,4,7]; %conditions we are interested to keep
 ex.conds = ex.conds(condIdx);
 ex.repsPerRun = ex.repsPerRun(condIdx);
@@ -134,11 +139,6 @@ ex.condShuffle = [];
 for i =1:ex.repsPerRun(1)
    ex.condShuffle = [ex.condShuffle, Shuffle(1:length(ex.conds))];
 end
-%  ex.condShuffle = [Shuffle([ex.condsOrdered])];
-%  ex.repsPerRun = 8;
-% for i =1:ex.repsPerRun
-%     ex.condShuffle = [ex.condShuffle, Shuffle([ex.numConds/2+1:ex.numConds])];
-% end
 
 ex.totalTime = [];
 for t =1:length(ex.blockLength) %there is a different block length for every drifting speed
