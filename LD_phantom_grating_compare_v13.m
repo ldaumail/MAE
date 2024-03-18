@@ -84,7 +84,7 @@ ex.betweenBlocks = 2;          % in seconds
 
 ex.flipsPerSec = 60;  % 60;         % number of phase changes we want from the visual stimulus, and thus the number of times we want to change visual stimulation on the screen
 ex.flipWin = 1/ex.flipsPerSec;         % in seconds then actually in 1 sec the stimuli will change 12 times 
-ex.stim.cycPerSec = 1; %drifting speed in cycles of grating per sec
+ex.stim.cycPerSec = 1.5; %drifting speed in cycles of grating per sec
 ex.stim.motionRate = 360*ex.stim.cycPerSec; %drifting speed in degrees of visual angle per sec
 ex.stim.dphase = ex.stim.motionRate/ex.flipsPerSec; %degrees per flip
 
@@ -101,14 +101,14 @@ ex.test.contrastMultiplicator = ex.test.luminanceRange./2;  % for sine wave
 
 %%%% conditions & layout (across blocks scale)
 
-ex.conds = {'LowContPhUp','LowContPhDown','LowContPhCtUp','LowContPhCtDown',...
-    'MedContPhUp','MedContPhDown','MedContPhCtUp','MedContPhCtDown', ...%
-    'HighContPhUp','HighContPhDown','HighContPhCtUp','HighContPhCtDown'
+ex.conds = {'LowContPhRight','LowContPhLeft','LowContPhCtRight','LowContPhCtLeft',...
+    'MedContPhRight','MedContPhLeft','MedContPhCtRight','MedContPhCtLeft', ...%
+    'HighContPhRight','HighContPhLeft','HighContPhCtRight','HighContPhCtLeft'
        }; 
 ex.numConds = length(ex.conds);
 % with line of code below we will have 1 condition per block, randomized. we might need to change that
 % later, to have the conditions randomized within each block
-ex.repsPerRun = 4;              % repetitions of each condition per run
+ex.repsPerRun = 2;              % repetitions of each condition per run
 ex.nTrials = ex.numConds*ex.repsPerRun;
 ex.numBlocks = ex.numConds*ex.repsPerRun;
 
@@ -328,12 +328,12 @@ while(1) %n <= length(ex.trialFlips)
 %     Screen('DrawTexture', w, ex.rectSWaveID(n,thisCond),[],ex.rectRRect);
 %     
     % stim
-    if contains(condName, 'Up')
+    if contains(condName, 'Right')
         Screen('DrawTexture', w, ex.rectSWaveID(n,l),[],ex.rectLRect);
         Screen('DrawTexture', w, ex.rectSWaveID(n,l),[],ex.rectRRect);
         Screen('DrawTexture', w, ex.testSWaveID(n,l),[],ex.rectCRect);
         
-    elseif contains(condName, 'Down')
+    elseif contains(condName, 'Left')
         Screen('DrawTexture', w, ex.rectSWaveID(end-(n-1),l),[],ex.rectLRect);
         Screen('DrawTexture', w, ex.rectSWaveID(end-(n-1),l),[],ex.rectRRect);
         Screen('DrawTexture', w, ex.testSWaveID(end-(n-1),l),[],ex.rectCRect);
@@ -406,7 +406,7 @@ end
 ex.runTime = GetSecs - ex.startRun;
 ex.rectSWave = [];
 ex.testSWave = [];
-savedir = fullfile(ex.root,'data',sprintf('dyn_MAE/s%s_%s/',subject,ex.version));
+savedir = fullfile(ex.root,'data',sprintf('dyn_MAE/%s/percept/s%s_%s/',ex.version, subject,ex.version));
 if ~exist(savedir); mkdir(savedir); end
 savename = fullfile(savedir, strcat(sprintf('/s%s_percept_test_%s_date%s_fix',subject,ex.version,num2str(ex.date)), '.mat'));
 %save(savename,'ex');

@@ -1,4 +1,4 @@
-function LD_dynamic_MAE_v13(subject, session, debug)
+function LD_dynamic_MAE_fulltest_v13(subject, session, debug)
 
 %In this version, we add multiple velocities
 % subject = 'sub-01'; 
@@ -59,9 +59,9 @@ ex.stim.gapSizeDeg = 2.6;
 ex.stim.distFromFixDeg = (ex.stim.gapSizeDeg+ex.stim.gaborHDeg)/2;  %each grating center deg horizontal away from fixation (grating center 6 deg away)
 
 ex.stim.backgroundLum = [60 60 60];
-ex.stim.contrast = [0.03 0.03 0.15 0.15 0.60 0.60];
-ex.stim.contrastOffset = [(ex.stim.backgroundLum(1)./255)./(1-ex.stim.contrast(1)), ex.stim.backgroundLum(1)./255, (ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast(3)),...
-    ex.stim.backgroundLum(1)./255,(ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast(5)), ex.stim.backgroundLum(1)./255];%+ex.stim.contrast/2;
+ex.stim.contrast = [0.03 0.15 0.60];
+ex.stim.contrastOffset = [(ex.stim.backgroundLum(1)./255)./(1-ex.stim.contrast(1)), (ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast(2)),...
+    (ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast(3))];%+ex.stim.contrast/2;
 ex.stim.luminanceRange = 2*ex.stim.contrast.*ex.stim.contrastOffset;
 ex.stim.contrastMultiplicator = ex.stim.luminanceRange./2;  % for sine wave
 
@@ -110,11 +110,11 @@ ex.horiLineWdeg = 0.45;
 
 %%%% conditions & layout (across blocks scale)
 
-ex.conds = {'LowContPhRight','LowContPhLeft','LowContPhCtRight','LowContPhCtLeft',...
-    'MedContPhRight','MedContPhLeft','MedContPhCtRight','MedContPhCtLeft', ...%
-    'HighContPhRight','HighContPhLeft','HighContPhCtRight','HighContPhCtLeft'
+ex.conds = {'LowContFullRight','LowContFullLeft',...
+    'MedContFullRight','MedContFullLeft', ...%
+    'HighContFullRight','HighContFullLeft'
        }; 
-ex.repsPerRun = [16 16 16 16 16 16 16 16 16 16 16 16];              % repetitions of each condition per run
+ex.repsPerRun = [8 8 8 8 8 8];              % repetitions of each condition per run
 condIdx = 1:length(ex.conds); %[1,4,7]; %conditions we are interested to keep
 ex.conds = ex.conds(condIdx);
 ex.repsPerRun = ex.repsPerRun(condIdx);
@@ -255,6 +255,7 @@ ex.gaborWidth = round(ex.stim.gaborWDeg*ex.ppd);                 % in pixels, th
 ex.rawGaborHeight = ex.gaborHeight;
 ex.rawGaborWidth = ex.gaborWidth;
 ex.stim.distFromFix = round(ex.stim.distFromFixDeg*ex.ppd);
+ex.stim.gapSize = round(ex.stim.gapSizeDeg*ex.ppd);
 
 %%%% scale the test params for the screen
 ex.probeHeight = round(ex.test.gaborHDeg*ex.ppd);                 % in pixels, the size of our objects
@@ -293,7 +294,21 @@ end
 %check luminances ranges
 % minval = min(squeeze(ex.rectSWave(1,1,1,:,:)),[],'all');
 % maxval = max(squeeze(ex.rectSWave(1,1,1,:,:)),[],'all');
+%% Create "Full" grating condition
 
+ex.fullSWave = nan(ex.stim.gapSize,ex.rawGaborWidth,length(ex.test.oscillation1),nconds);
+ex.fullSWaveID = nan(length(ex.test.oscillation1),nconds);
+clear c r
+
+for l = 1:length(ex.stim.contrastMultiplicator)
+    for f =1:length(ex.test.oscillation1)
+        phase = ex.stim.phases(l,f);
+        ex.fullSWave(:,:,f,l) = makeSineGrating(ex.stim.gapSize,ex.rawGaborWidth,ex.stim.spatialFreqDeg,...
+            ex.stim.orientation,phase,ex.stim.contrastOffset(l),ex.stim.contrastMultiplicator(l),...
+            ex.ppd);
+        ex.fullSWaveID(f,l) = Screen('MakeTexture', w, squeeze(ex.fullSWave(:,:,f,l)));
+    end
+end
 %% create dynamic grating image as a test for other eye
 
 % phase = repmat((0:360/60:360-360/60),1,ex.testLength);
@@ -400,19 +415,22 @@ for c = 1:length(ex.condShuffle)
         
         Screen('FillRect', w, ex.stim.backgroundLum);
         if nnz(find(ex.longFormStimOnSecs(n)))
-            ex.rectLRect =  CenterRectOnPoint([0 0 ex.rawGaborWidth ex.rawGaborHeight],xL,yL);
-            ex.rectRRect =  CenterRectOnPoint([0 0 ex.rawGaborWidth ex.rawGaborHeight],xR,yR);
-            
-            % stim
-            if contains(condName, 'Right')
-                Screen('DrawTexture', w, ex.rectSWaveID(f,l),[],ex.rectLRect);
-                Screen('DrawTexture', w, ex.rectSWaveID(f,l),[],ex.rectRRect);
+                 ex.rectLRect =  CenterRectOnPoint([0 0 ex.rawGaborWidth ex.rawGaborHeight],xL,yL);
+                ex.rectRRect =  CenterRectOnPoint([0 0 ex.rawGaborWidth ex.rawGaborHeight],xR,yR);
+                ex.fullRect =  CenterRectOnPoint([0 0 ex.rawGaborWidth ex.stim.gapSize],xc,yc);
                 
-            elseif contains(condName, 'Left')
-                Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectLRect);
-                Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectRRect);
-                
-            end
+                % stim
+                if contains(condName, 'Right')
+                    Screen('DrawTexture', w, ex.rectSWaveID(f,l),[],ex.rectLRect);
+                    Screen('DrawTexture', w, ex.rectSWaveID(f,l),[],ex.rectRRect);
+                    Screen('DrawTexture', w, ex.fullSWaveID(f,l),[],ex.fullRect);
+                    
+                elseif contains(condName, 'Left')
+                    Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectLRect);
+                    Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectRRect);
+                    Screen('DrawTexture', w, ex.fullSWaveID(end-(f-1),l),[],ex.fullRect);
+                    
+                end
             
             %             Screen('DrawTexture',w,ph1LPaperture);
             
@@ -510,7 +528,7 @@ ex.runTime = GetSecs - ex.startRun;
 
 savedir = fullfile(ex.root,'data/dyn_MAE',sprintf('%s/%s_%s/',ex.version,subject,ex.version));
 if ~exist(savedir); mkdir(savedir); end
-savename = fullfile(savedir, strcat(sprintf('/%s_dyn_MAE_%s_date%s_fix',subject,ex.version,num2str(ex.date)), '.mat'));
+savename = fullfile(savedir, strcat(sprintf('/%s_dyn_MAE_fulltest_%s_date%s_fix',subject,ex.version,num2str(ex.date)), '.mat'));
 %save(savename,'ex');
 save(savename,'ex','-v7.3')
 
