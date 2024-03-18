@@ -1,4 +1,4 @@
-function LD_static_MAE_v6(subject, session, debug)
+function LD_static_MAE_v7(subject, session, debug)
 
 %In this version, we add multiple velocities
 % subject = 'sub-01'; 
@@ -6,7 +6,7 @@ function LD_static_MAE_v6(subject, session, debug)
 % debug = 0;
 
 
-ex.version = 'v6';
+ex.version = 'v7';
 %%%% resolution 
 if debug == 1
 
@@ -28,6 +28,7 @@ responseKeys = zeros(1,256);
 responseKeys(KbName('LeftArrow'))=1; % button box 
 responseKeys(KbName('RightArrow'))=1; % button box 
 responseKeys(KbName('DownArrow'))=1; % button box 3
+responseKeys(KbName('Space'))=1;
 
 Screen('Preference', 'SkipSyncTests', 0);
 % Screen('Preference', 'SkipSyncTests', 1);
@@ -76,8 +77,8 @@ ex.initialFixation = 6;        % in seconds
 ex.finalFixation = 2;          % in seconds
 ex.blockLength = 45; %120; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
 ex.testLength = 1;% in seconds
-ex.ITI1 = 1;
-ex.ITI2 = 2;% in seconds
+ex.ITI1 = 0;
+ex.ITI2 = .5;% in seconds
 % ex.betweenBlocks = 2;          % in seconds
 ex.flipsPerSec = 60;  % 60;         % number of phase changes we want from the visual stimulus, and thus the number of times we want to change visual stimulation on the screen
 ex.flipWin = 1/ex.flipsPerSec;         % in seconds then actually in 1 sec the stimuli will change 12 times 
@@ -387,7 +388,7 @@ ylineTop = yc - ex.lineH/2;
 
 
 %% %%%% initial window - wait for backtick
-DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n report when the MAE effect on the test stimulus disappears \n\n  by pressing the left arrow if test stimulus appeared to move leftward, \n\n the right arrow if test stimulus appeared to move rightward, \n\n or down arrow if there was no MAE \n\n Press Space to start'... % :  '...
+DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n 1: Report the MAE effect direction as soon as you see it on the test stimulus \n\n  by pressing the left arrow if test stimulus appeared to move leftward, \n\n the right arrow if test stimulus appeared to move rightward, \n\n or down arrow if there was no MAE \n\n 2: Press space as soon as MAE ends \n\n Press Space to start'... % :  '...
     ,xc/2, yc/2,[0 0 0]);
 Screen(w, 'Flip', 0);
 %WaitSecs(2);
@@ -406,7 +407,8 @@ blockCnt = 1;
 cnt = 0; %trial count
 
 ex.responses = [];
-ex.responseTimes=[];
+ex.dirResponseTimes = [];
+ex.endTimes = [];
 ex.resp = [];
 
 % onOffs = [diff([0 ex.longFormBlocks])];
@@ -523,6 +525,7 @@ for c = 1:length(ex.condShuffle)
         
         if length(ex.longFormBlocks(1:n))/60 == ex.blockLength+ex.testLength %&& c ~= length(ex.condShuffle) %(cnt/2 == 1 && GetSecs-time >= ex.blockLength+ex.testLength) && c ~= length(ex.condShuffle)
             [~,~,~] =KbWait(deviceNumber,2);
+            [~,~,~] =KbWait(deviceNumber,2);
             cnt = cnt+1;
             WaitSecs(ex.ITI1);
             if c ~= length(ex.condShuffle)
@@ -534,7 +537,7 @@ for c = 1:length(ex.condShuffle)
                 Screen('DrawLines', w, [xhorilinel, xhoriliner; yhoriline, yhoriline],ex.lineW, [30 30 30]);
                 
                 Screen(w, 'Flip', 0);
-                [~,~,~] =KbWait(deviceNumber,2);
+                [~,~,~] = KbWait(deviceNumber,2);
                 Screen('FillRect', w, ex.stim.backgroundLum);
                 %                 Screen('DrawDots', w, [xc yc], ex.fixSize, [255 255 255], [], 2);
                 Screen('DrawLines', w, [xline, xline; ylineBot, ylineTop], ex.lineW, [30 30 30]);
@@ -551,20 +554,24 @@ for c = 1:length(ex.condShuffle)
             cnt = 0;
         end
         KbQueueStop();
-        [pressed, firstPress]= KbQueueCheck();
+        [pressed, firstPress, ~, lastPress, ~]= KbQueueCheck();
         
         if  (pressed == 1) && ((firstPress(KbName('RightArrow')) > 0 || firstPress( KbName('LeftArrow')) > 0)||(firstPress(KbName('DownArrow')) > 0)) %%
             ex.responses = [ex.responses, 1];
             if (firstPress(KbName('RightArrow')) > 0)
                 ex.resp = [ex.resp, 1];
-                ex.responseTimes = [ex.responseTimes, firstPress(KbName('RightArrow')) - ex.startRun];
+                ex.dirResponseTimes = [ex.dirResponseTimes, firstPress(KbName('RightArrow')) - ex.startRun];
             elseif (firstPress(KbName('LeftArrow')) > 0)
                 ex.resp = [ex.resp, 2];
-                ex.responseTimes = [ex.responseTimes, firstPress(KbName('LeftArrow')) - ex.startRun];
+                ex.dirResponseTimes = [ex.dirResponseTimes, firstPress(KbName('LeftArrow')) - ex.startRun];
             elseif (firstPress(KbName('DownArrow')) > 0)
                 ex.resp = [ex.resp, 3];
-                ex.responseTimes = [ex.responseTimes, firstPress(KbName('DownArrow')) - ex.startRun];
+                ex.dirResponseTimes = [ex.dirResponseTimes, firstPress(KbName('DownArrow')) - ex.startRun];
             end
+            
+        end
+        if  (pressed == 1) && (lastPress(KbName('Space')) > 0)
+            ex.endTimes = [ex.endTimes, lastPress(KbName('Space'))- ex.startRun];
             pressed = 0;
         end
         %%%% refresh queue for next character
