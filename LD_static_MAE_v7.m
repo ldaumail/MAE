@@ -28,7 +28,7 @@ responseKeys = zeros(1,256);
 responseKeys(KbName('LeftArrow'))=1; % button box 
 responseKeys(KbName('RightArrow'))=1; % button box 
 responseKeys(KbName('DownArrow'))=1; % button box 3
-responseKeys(KbName('Space'))=1;
+responseKeys(KbName('Enter'))=1;
 
 Screen('Preference', 'SkipSyncTests', 0);
 % Screen('Preference', 'SkipSyncTests', 1);
@@ -388,7 +388,7 @@ ylineTop = yc - ex.lineH/2;
 
 
 %% %%%% initial window - wait for backtick
-DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n 1: Report the MAE effect direction as soon as you see it on the test stimulus \n\n  by pressing the left arrow if test stimulus appeared to move leftward, \n\n the right arrow if test stimulus appeared to move rightward, \n\n or down arrow if there was no MAE \n\n 2: Press space as soon as MAE ends \n\n Press Space to start'... % :  '...
+DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n 1: Report the MAE effect direction as soon as you see it on the test stimulus \n\n  by pressing the left arrow if test stimulus appeared to move leftward, \n\n the right arrow if test stimulus appeared to move rightward, \n\n or down arrow if there was no MAE \n\n 2: Press enter as soon as MAE ends \n\n Press Space to start'... % :  '...
     ,xc/2, yc/2,[0 0 0]);
 Screen(w, 'Flip', 0);
 %WaitSecs(2);
@@ -570,8 +570,8 @@ for c = 1:length(ex.condShuffle)
             end
             
         end
-        if  (pressed == 1) && (lastPress(KbName('Space')) > 0)
-            ex.endTimes = [ex.endTimes, lastPress(KbName('Space'))- ex.startRun];
+        if  (pressed == 1) && (lastPress(KbName('Enter')) > 0)
+            ex.endTimes = [ex.endTimes, lastPress(KbName('Enter'))- ex.startRun];
             pressed = 0;
         end
         %%%% refresh queue for next character
