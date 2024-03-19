@@ -363,22 +363,39 @@ while(1) %n <= length(ex.trialFlips)
             if (firstPress(KbName('0')) > 0)
                 ex.resp = [ex.resp, 0];
                 ex.responseTimes = [ex.responseTimes, firstPress(KbName('0')) - ex.startRun];
-                
+                DrawFormattedText(w,'You rated 0! Press enter to go on to the next trial \n\n or continue responding to this trial for any correction.','center', 'center',[0 0 0]);
+                Screen(w, 'Flip', 0);
+                WaitSecs(2);
             elseif (firstPress(KbName('1')) > 0)
                 ex.resp = [ex.resp, 1];
-                ex.responseTimes = [ex.responseTimes, firstPress(KbName('1')) - ex.startRun];   
+                ex.responseTimes = [ex.responseTimes, firstPress(KbName('1')) - ex.startRun];
+                                DrawFormattedText(w,'You rated 1! Press enter to go on to the next trial \n\n or continue responding to this trial for any correction.','center', 'center',[0 0 0]);
+                Screen(w, 'Flip', 0);
+                WaitSecs(2);
             elseif (firstPress(KbName('2')) > 0)
                 ex.resp = [ex.resp, 2];
                 ex.responseTimes = [ex.responseTimes, firstPress(KbName('2')) - ex.startRun];
+                                DrawFormattedText(w,'You rated 2! Press enter to go on to the next trial \n\n or continue responding to this trial for any correction.','center', 'center',[0 0 0]);
+                Screen(w, 'Flip', 0);
+                WaitSecs(2);
             elseif (firstPress(KbName('3')) > 0)
                 ex.resp = [ex.resp, 3];
                 ex.responseTimes = [ex.responseTimes, firstPress(KbName('3')) - ex.startRun];
+                                DrawFormattedText(w,'You rated 3! Press enter to go on to the next trial \n\n or continue responding to this trial for any correction.','center', 'center',[0 0 0]);
+                Screen(w, 'Flip', 0);
+                WaitSecs(2);
             elseif (firstPress(KbName('4')) > 0)
                 ex.resp = [ex.resp, 4];
                 ex.responseTimes = [ex.responseTimes, firstPress(KbName('4')) - ex.startRun];
+                                DrawFormattedText(w,'You rated 4! Press enter to go on to the next trial \n\n or continue responding to this trial for any correction.','center', 'center',[0 0 0]);
+                Screen(w, 'Flip', 0);
+                WaitSecs(2);
             elseif (firstPress(KbName('5')) > 0)
                 ex.resp = [ex.resp, 5];
                 ex.responseTimes = [ex.responseTimes, firstPress(KbName('5')) - ex.startRun];
+                                DrawFormattedText(w,'You rated 5! Press enter to go on to the next trial \n\n or continue responding to this trial for any correction.','center', 'center',[0 0 0]);
+                Screen(w, 'Flip', 0);
+                WaitSecs(2);
             end
             pressed = 0;
 
