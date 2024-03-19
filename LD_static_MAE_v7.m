@@ -530,7 +530,7 @@ for c = 1:length(ex.condShuffle)
             WaitSecs(ex.ITI1);
             if c ~= length(ex.condShuffle)
                 % [ex.respT(cnt),~,~] =KbWait(deviceNumber,2);
-                DrawFormattedText(w,'Press Space whenever \n\n you feel ready',(4/5)*xc, yc/2,[0 0 0]); %left instruction
+                DrawFormattedText(w,sprintf('Press Space whenever \n\n you feel ready \n\n for trial %d / %d', c+1, length(ex.condShuffle)),(4/5)*xc, yc/2,[0 0 0]); %left instruction
                 %% Fixation
                 %                 Screen('DrawDots', w, [xc yc], ex.fixSize, [255 255 255], [], 2);
                 Screen('DrawLines', w, [xline, xline; ylineBot, ylineTop], ex.lineW, [30 30 30]);

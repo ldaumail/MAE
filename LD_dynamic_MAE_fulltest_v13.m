@@ -114,7 +114,7 @@ ex.conds = {'LowContFullRight','LowContFullLeft',...
     'MedContFullRight','MedContFullLeft', ...%
     'HighContFullRight','HighContFullLeft'
        }; 
-ex.repsPerRun = [8 8 8 8 8 8];              % repetitions of each condition per run
+ex.repsPerRun = [12 12 12 12 12 12];              % repetitions of each condition per run
 condIdx = 1:length(ex.conds); %[1,4,7]; %conditions we are interested to keep
 ex.conds = ex.conds(condIdx);
 ex.repsPerRun = ex.repsPerRun(condIdx);
@@ -468,7 +468,7 @@ for c = 1:length(ex.condShuffle)
         if length(ex.longFormBlocks(1:n))/60 == ex.blockLength+ex.testLength && c ~= length(ex.condShuffle) %(cnt/2 == 1 && GetSecs-time >= ex.blockLength+ex.testLength) && c ~= length(ex.condShuffle)
             WaitSecs(ex.ITI1);
             %             [ex.respT(cnt),~,~] =KbWait(deviceNumber,2);
-            DrawFormattedText(w,'Press Space whenever \n\n you feel ready',(4/5)*xc, yc/2,[0 0 0]); %left instruction
+            DrawFormattedText(w,sprintf('Press Space whenever \n\n you feel ready \n\n for trial %d / %d', c+1, length(ex.condShuffle)),(4/5)*xc, yc/2,[0 0 0]); %left instruction
             %% Fixation
             %             Screen('DrawDots', w, [xc yc], ex.fixSize, [255 255 255], [], 2);
             Screen('DrawLines', w, [xline, xline; ylineBot, ylineTop], ex.lineW, [30 30 30]);
