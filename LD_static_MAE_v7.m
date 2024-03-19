@@ -28,7 +28,8 @@ responseKeys = zeros(1,256);
 responseKeys(KbName('LeftArrow'))=1; % button box 
 responseKeys(KbName('RightArrow'))=1; % button box 
 responseKeys(KbName('DownArrow'))=1; % button box 3
-responseKeys(KbName('Enter'))=1;
+% responseKeys(KbName('Return'))=1;
+responseKeys(KbName('LeftControl'))=1;
 
 Screen('Preference', 'SkipSyncTests', 0);
 % Screen('Preference', 'SkipSyncTests', 1);
@@ -75,9 +76,9 @@ ex.stim.contrast = (ex.stim.maxLum-ex.stim.minLum)./(ex.stim.maxLum+ex.stim.minL
 %%%% sine wave grating timing (within block scale)
 ex.initialFixation = 6;        % in seconds
 ex.finalFixation = 2;          % in seconds
-ex.blockLength = 45; %120; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
+ex.blockLength = 1; %45; %120; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
 ex.testLength = 1;% in seconds
-ex.ITI1 = 0;
+ex.ITI1 = .2;
 ex.ITI2 = .5;% in seconds
 % ex.betweenBlocks = 2;          % in seconds
 ex.flipsPerSec = 60;  % 60;         % number of phase changes we want from the visual stimulus, and thus the number of times we want to change visual stimulation on the screen
@@ -554,7 +555,7 @@ for c = 1:length(ex.condShuffle)
             cnt = 0;
         end
         KbQueueStop();
-        [pressed, firstPress, ~, lastPress, ~]= KbQueueCheck();
+        [pressed, firstPress,~, secondPress]= KbQueueCheck();
         
         if  (pressed == 1) && ((firstPress(KbName('RightArrow')) > 0 || firstPress( KbName('LeftArrow')) > 0)||(firstPress(KbName('DownArrow')) > 0)) %%
             ex.responses = [ex.responses, 1];
@@ -570,9 +571,10 @@ for c = 1:length(ex.condShuffle)
             end
             
         end
-        if  (pressed == 1) && (lastPress(KbName('Enter')) > 0)
-            ex.endTimes = [ex.endTimes, lastPress(KbName('Enter'))- ex.startRun];
+        if  (pressed == 1) & (secondPress(KbName('LeftControl')) > 0)
+            ex.endTimes = [ex.endTimes, secondPress(KbName('LeftControl'))- ex.startRun];
             pressed = 0;
+%             secondPress = [];
         end
         %%%% refresh queue for next character
         KbQueueFlush();
