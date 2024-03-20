@@ -66,7 +66,7 @@ ex.stim.gapSizeDeg = 2.6;
 ex.stim.distFromFixDeg = (ex.stim.gapSizeDeg+ex.stim.gaborHDeg)/2;  %each grating center deg horizontal away from fixation (grating center 6 deg away)
 
 ex.stim.backgroundLum = [60 60 60];
-ex.stim.contrast = [0.03 0.03 0.15 0.15 0.60 0.60];
+ex.stim.contrast = [0.075 0.075 0.15 0.15 0.60 0.60];
 ex.stim.contrastOffset = [(ex.stim.backgroundLum(1)./255)./(1-ex.stim.contrast(1)), ex.stim.backgroundLum(1)./255, (ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast(3)),...
     ex.stim.backgroundLum(1)./255,(ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast(5)), ex.stim.backgroundLum(1)./255];%+ex.stim.contrast/2;
 ex.stim.luminanceRange = 2*ex.stim.contrast.*ex.stim.contrastOffset;
@@ -84,7 +84,7 @@ ex.betweenBlocks = 2;          % in seconds
 
 ex.flipsPerSec = 60;  % 60;         % number of phase changes we want from the visual stimulus, and thus the number of times we want to change visual stimulation on the screen
 ex.flipWin = 1/ex.flipsPerSec;         % in seconds then actually in 1 sec the stimuli will change 12 times 
-ex.stim.cycPerSec = 1.5; %drifting speed in cycles of grating per sec
+ex.stim.cycPerSec = 2; %drifting speed in cycles of grating per sec
 ex.stim.motionRate = 360*ex.stim.cycPerSec; %drifting speed in degrees of visual angle per sec
 ex.stim.dphase = ex.stim.motionRate/ex.flipsPerSec; %degrees per flip
 
@@ -423,9 +423,9 @@ end
 ex.runTime = GetSecs - ex.startRun;
 ex.rectSWave = [];
 ex.testSWave = [];
-savedir = fullfile(ex.root,'data',sprintf('dyn_MAE/%s/percept/s%s_%s/',ex.version, subject,ex.version));
+savedir = fullfile(ex.root,'data',sprintf('dyn_MAE/%s/%s_%s/',ex.version, subject,ex.version));
 if ~exist(savedir); mkdir(savedir); end
-savename = fullfile(savedir, strcat(sprintf('/s%s_percept_test_%s_date%s_fix',subject,ex.version,num2str(ex.date)), '.mat'));
+savename = fullfile(savedir, strcat(sprintf('/%s_percept_test_%s_date%s_fix',subject,ex.version,num2str(ex.date)), '.mat'));
 %save(savename,'ex');
 save(savename,'ex','-v7.3')
 

@@ -536,6 +536,72 @@ savename = fullfile(savedir, strcat(sprintf('/%s_dyn_MAE_fulltest_%s_date%s_fix'
 %save(savename,'ex');
 save(savename,'ex','-v7.3')
 
+clear c cnt condNum
+teststarts = ex.flipTime(ex.blockLength*ex.flipsPerSec,1:end)-ex.startRun; 
+testends = ex.flipTime(end,1:end)-ex.startRun+ex.ITI1;  
+responseType = [1, 2, 3];
+condNums = ex.condShuffle;
+conditions = ex.conds;
+% respFreq = nan(length(responseType), condNums);
+respDat = zeros(length(responseType), max(ex.repsPerRun), length(conditions)); %response time data better organized
+
+cnt = zeros(length(condNums),1);
+for c =1:length(condNums)
+    condNum = condNums(c);  
+    cnt(condNum) = cnt(condNum)+1; %counting rep number
+    tstart = teststarts(c);
+    tend = testends(c);
+    
+    respTimes = ex.responseTimes(ex.responseTimes > tstart &  ex.responseTimes < tend);
+    resps = ex.resp(ex.responseTimes > tstart &  ex.responseTimes < tend);
+
+    if ~isempty(resps)
+        respDat(resps(end), cnt(condNum), condNum) = respDat(resps(end), cnt(condNum), condNum)+1; %resps(end) to take the last response in case the participant corrected a mistake
+    end
+    
+end
+
+respFreq = squeeze(sum(respDat,2));
+same_diff = zeros(length(responseType),length(conditions)/2);
+for c =1:length(conditions)
+    for t = 1:size(respFreq,1)
+        %same direction
+        if contains(conditions(c), 'Right') && t == 1
+            condcnt = ceil(c/2);
+            same_diff(1,condcnt) = same_diff(1,condcnt)+ respFreq(t,c);
+        elseif contains(conditions(c), 'Left') && t == 2
+            condcnt = ceil(c/2);
+            same_diff(1,condcnt) = same_diff(1,condcnt)+ respFreq(t,c);
+            %ambiguous direction
+            
+        elseif t == 3
+            condcnt = ceil(c/2);
+            same_diff(2,condcnt) = same_diff(2,condcnt)+ respFreq(t,c);
+            %opposite direction  
+        elseif contains(conditions(c), 'Right') && t == 2
+            condcnt = ceil(c/2);
+            same_diff(3,condcnt) = same_diff(3,condcnt)+ respFreq(t,c);
+        elseif  contains(conditions(c), 'Left') && t == 1
+            condcnt = ceil(c/2);
+            same_diff(3,condcnt) = same_diff(3,condcnt)+ respFreq(t,c);
+            
+        end
+        
+    end
+    
+end
+    
+%bias
+score=[0; 0.5;1]; %score each percept type: 0 = same, 0.5 = ambiguous, 1 = opposite
+bias = same_diff.*score;
+percentBias = nan(size(bias,2),1);
+for c =1:size(bias,2)
+    
+    percentBias(c) = 100*sum(bias(:,c))/sum(same_diff(:,c));
+    fprintf('Percent Bias %d\n', percentBias(c));
+end
+
+
 ShowCursor;
 Screen('Close');
 Screen('CloseAll');
