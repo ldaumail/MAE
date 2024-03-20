@@ -1,9 +1,9 @@
 function LD_static_MAE_v7(subject, session, debug)
 
 %In this version, we add multiple velocities
-% subject = 'sub-01'; 
-% session = 1;                                                                                                                           
-% debug = 0;
+subject = 'sub-01'; 
+session = 1;                                                                                                                           
+debug = 0;
 
 
 ex.version = 'v7';
@@ -29,8 +29,8 @@ responseKeys(KbName('LeftArrow'))=1; % button box
 responseKeys(KbName('RightArrow'))=1; % button box 
 responseKeys(KbName('DownArrow'))=1; % button box 3
 % responseKeys(KbName('Return'))=1;
-responseKeys(KbName('LeftControl'))=1;
-
+% responseKeys(KbName('LeftControl'))=1;
+responseKeys(KbName('Space'))=1; % button box 3
 Screen('Preference', 'SkipSyncTests', 0);
 % Screen('Preference', 'SkipSyncTests', 1);
 % ex.scanNum = input('Scan number :');
@@ -76,9 +76,9 @@ ex.stim.contrast = (ex.stim.maxLum-ex.stim.minLum)./(ex.stim.maxLum+ex.stim.minL
 %%%% sine wave grating timing (within block scale)
 ex.initialFixation = 6;        % in seconds
 ex.finalFixation = 2;          % in seconds
-ex.blockLength = 1; %45; %120; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
-ex.testLength = 1;% in seconds
-ex.ITI1 = .2;
+ex.blockLength = 45; %45; %120; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
+% ex.testLength = 1;% in seconds
+ex.ITI1 = 0;
 ex.ITI2 = .5;% in seconds
 % ex.betweenBlocks = 2;          % in seconds
 ex.flipsPerSec = 60;  % 60;         % number of phase changes we want from the visual stimulus, and thus the number of times we want to change visual stimulation on the screen
@@ -139,19 +139,19 @@ for i =1:ex.repsPerRun(1)
    ex.condShuffle = [ex.condShuffle, Shuffle(1:length(ex.conds))];
 end
 
-ex.totalTime = [];
-for t =1:length(ex.blockLength) %there is a different block length for every drifting speed
-    if t == 1
-        ex.totalTime = sum([ex.totalTime, ex.initialFixation + (ex.numBlocks/length(ex.blockLength) * (ex.blockLength(t) + ex.testLength))]);
-    elseif t <length(ex.blockLength) && t > 1
-             ex.totalTime = sum([ex.totalTime, (ex.numBlocks/length(ex.blockLength) * (ex.blockLength(t) + ex.testLength))]); 
-    elseif t == length(ex.blockLength)
-        ex.totalTime = sum([ex.totalTime, ((ex.numBlocks/length(ex.blockLength)-1) * (ex.blockLength(t) + ex.testLength)) + ex.blockLength(t) + ex.finalFixation]);
-    end
-end
-ex.allFlips = (0:ex.flipWin:ex.totalTime);
-ex.allFlips = ex.allFlips(1:end-1);
-ex.trialFlips = (0:ex.flipWin:ex.blockLength(1)+ex.testLength);
+% ex.totalTime = [];
+% for t =1:length(ex.blockLength) %there is a different block length for every drifting speed
+%     if t == 1
+%         ex.totalTime = sum([ex.totalTime, ex.initialFixation + (ex.numBlocks/length(ex.blockLength) * (ex.blockLength(t) + ex.testLength))]);
+%     elseif t <length(ex.blockLength) && t > 1
+%              ex.totalTime = sum([ex.totalTime, (ex.numBlocks/length(ex.blockLength) * (ex.blockLength(t) + ex.testLength))]); 
+%     elseif t == length(ex.blockLength)
+%         ex.totalTime = sum([ex.totalTime, ((ex.numBlocks/length(ex.blockLength)-1) * (ex.blockLength(t) + ex.testLength)) + ex.blockLength(t) + ex.finalFixation]);
+%     end
+% end
+% ex.allFlips = (0:ex.flipWin:ex.totalTime);
+% ex.allFlips = ex.allFlips(1:end-1);
+ex.trialFlips = (0:ex.flipWin:ex.blockLength(1));%+ex.testLength
 ex.trialFlips = ex.trialFlips(1:end-1);
 
 %%%% screen
@@ -162,10 +162,10 @@ ex.fontSize = 26;
    % timing model  %
    %%%%%%%%%%%%%%%%%
 
-ex.onSecs = [ones(1,ex.blockLength(t)) zeros(1,ex.testLength)];
+ex.onSecs = [ones(1,ex.blockLength(1))]; %zeros(1,ex.testLength)
 ex.longFormBlocks = Expand(ex.onSecs,ex.flipsPerSec,1); %1 when block, 0 when between block
 length(ex.longFormBlocks)
-ex.stimOnSecs = [ones(1,ex.blockLength(t)) zeros(1,ex.testLength)]; %zeros(1,ex.trialFixation) 
+ex.stimOnSecs = [ones(1,ex.blockLength(1))]; % zeros(1,ex.testLength) 
 ex.longFormStimOnSecs = Expand(ex.stimOnSecs,ex.flipsPerSec,1); %1 when stim on, 0 when fixation or between blocks
 
 % %% create the timing model of stimulus conditions for this particular run
@@ -223,7 +223,7 @@ for l =1:nconds
 end
 
 
-flipTimesTest = [0:1/ex.flipsPerSec:ex.testLength(1)]; %multiply frameInt by 60/12 = 5 to flip the image every 5 frames
+flipTimesTest = [0:1/ex.flipsPerSec:1];%till 1 sec %multiply frameInt by 60/12 = 5 to flip the image every 5 frames
 ex.test.flipTimes = flipTimesTest(1:length(flipTimesTest)-1);
 
 ex.test.tempPhase1 = 0;% rand(1,1)*2*pi;
@@ -389,7 +389,7 @@ ylineTop = yc - ex.lineH/2;
 
 
 %% %%%% initial window - wait for backtick
-DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n 1: Report the MAE effect direction as soon as you see it on the test stimulus \n\n  by pressing the left arrow if test stimulus appeared to move leftward, \n\n the right arrow if test stimulus appeared to move rightward, \n\n or down arrow if there was no MAE \n\n 2: Press the left control key as soon as MAE ends \n\n Press Space to start'... % :  '...
+DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n 1: Report the MAE effect direction as soon as you see it on the test stimulus \n\n  by pressing the left arrow if test stimulus appeared to move leftward, \n\n the right arrow if test stimulus appeared to move rightward, \n\n or down arrow if there was no MAE \n\n 2: Release the key as soon as MAE ends \n\n Press Space to start'... % :  '...
     ,xc/2, yc/2,[0 0 0]);
 Screen(w, 'Flip', 0);
 %WaitSecs(2);
@@ -405,11 +405,12 @@ KbTriggerWait(KbName('Space'), deviceNumber);
 clear l n
 n = 1;
 blockCnt = 1;
-cnt = 0; %trial count
+cnt = 0; %
+secs = 0;
 
 ex.responses = [];
-ex.dirResponseTimes = [];
-ex.endTimes = [];
+ex.pressTimes = [];
+ex.releaseTimes = [];
 ex.resp = [];
 
 % onOffs = [diff([0 ex.longFormBlocks])];
@@ -522,13 +523,14 @@ for c = 1:length(ex.condShuffle)
             flipTimes = [flipTimes, flipTime];
             
         end
-        
-        
-        if length(ex.longFormBlocks(1:n))/60 == ex.blockLength+ex.testLength %&& c ~= length(ex.condShuffle) %(cnt/2 == 1 && GetSecs-time >= ex.blockLength+ex.testLength) && c ~= length(ex.condShuffle)
-            [~,~,~] =KbWait(deviceNumber,2);
-            [~,~,~] =KbWait(deviceNumber,2);
+        if length(ex.longFormBlocks(1:n))/60>= ex.blockLength
+            [secs,~,~] =KbWait(deviceNumber,3);
+        end
+        if secs %length(ex.longFormBlocks(1:n))/60== ex.blockLength+ex.testLength %&& 
+            
             cnt = cnt+1;
-            WaitSecs(ex.ITI1);
+
+%             WaitSecs(ex.ITI1);
             if c ~= length(ex.condShuffle)
                 % [ex.respT(cnt),~,~] =KbWait(deviceNumber,2);
                 DrawFormattedText(w,sprintf('Press Space whenever \n\n you feel ready \n\n for trial %d / %d', c+1, length(ex.condShuffle)),(4/5)*xc, yc/2,[0 0 0]); %left instruction
@@ -553,29 +555,35 @@ for c = 1:length(ex.condShuffle)
         
         if cnt >=1
             cnt = 0;
+            secs = 0;
         end
         KbQueueStop();
-        [pressed, firstPress,~, secondPress]= KbQueueCheck();
+        [pressed, firstPress, firstRelease]= KbQueueCheck();
         
         if  (pressed == 1) && ((firstPress(KbName('RightArrow')) > 0 || firstPress( KbName('LeftArrow')) > 0)||(firstPress(KbName('DownArrow')) > 0)) %%
             ex.responses = [ex.responses, 1];
             if (firstPress(KbName('RightArrow')) > 0)
                 ex.resp = [ex.resp, 1];
-                ex.dirResponseTimes = [ex.dirResponseTimes, firstPress(KbName('RightArrow')) - ex.startRun];
+                ex.pressTimes = [ex.pressTimes, firstPress(KbName('RightArrow')) - ex.startRun];
+                ex.releaseTimes = [ex.releaseTimes, firstRelease(KbName('RightArrow'))- ex.startRun];
+
             elseif (firstPress(KbName('LeftArrow')) > 0)
                 ex.resp = [ex.resp, 2];
-                ex.dirResponseTimes = [ex.dirResponseTimes, firstPress(KbName('LeftArrow')) - ex.startRun];
+                ex.pressTimes = [ex.pressTimes, firstPress(KbName('LeftArrow')) - ex.startRun];
+                ex.releaseTimes = [ex.releaseTimes, firstRelease(KbName('LeftArrow'))- ex.startRun ];
+
             elseif (firstPress(KbName('DownArrow')) > 0)
                 ex.resp = [ex.resp, 3];
-                ex.dirResponseTimes = [ex.dirResponseTimes, firstPress(KbName('DownArrow')) - ex.startRun];
+                ex.pressTimes = [ex.pressTimes, firstPress(KbName('DownArrow')) - ex.startRun];
+                ex.releaseTimes = [ex.releaseTimes, firstRelease(KbName('DownArrow')) - ex.startRun];
+
             end
-            
+               pressed = 0;
         end
-        if  (pressed == 1) & (secondPress(KbName('LeftControl')) > 0)
-            ex.endTimes = [ex.endTimes, secondPress(KbName('LeftControl'))- ex.startRun];
-            pressed = 0;
-%             secondPress = [];
-        end
+%         if  (pressed == 1) & (firstRelease(KbName('Space')) > 0)
+%             ex.endTimes = [ex.endTimes, firstPress(KbName('Space'))- ex.startRun];
+%             pressed = 0;
+%         end
         %%%% refresh queue for next character
         KbQueueFlush();
         f = f+1;
