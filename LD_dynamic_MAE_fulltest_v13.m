@@ -59,7 +59,7 @@ ex.stim.gapSizeDeg = 2.6;
 ex.stim.distFromFixDeg = (ex.stim.gapSizeDeg+ex.stim.gaborHDeg)/2;  %each grating center deg horizontal away from fixation (grating center 6 deg away)
 
 ex.stim.backgroundLum = [60 60 60];
-ex.stim.contrast = [0.03 0.15 0.60];
+ex.stim.contrast = [0.075 0.15 0.60];
 ex.stim.contrastOffset = [(ex.stim.backgroundLum(1)./255)./(1-ex.stim.contrast(1)), (ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast(2)),...
     (ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast(3))];%+ex.stim.contrast/2;
 ex.stim.luminanceRange = 2*ex.stim.contrast.*ex.stim.contrastOffset;
@@ -71,23 +71,23 @@ ex.stim.contrast = (ex.stim.maxLum-ex.stim.minLum)./(ex.stim.maxLum+ex.stim.minL
 
 
 %%%% sine wave grating timing (within block scale)
-ex.initialFixation = 6;        % in seconds
+ex.initialFixation = 3;        % in seconds
 ex.finalFixation = 2;          % in seconds
 ex.blockLength = 8; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
-ex.testLength = 2;% in seconds
-ex.ITI1 = 2;
+ex.testLength = 1;% in seconds
+ex.ITI1 = 3;
 ex.ITI2 = 0.5;% in seconds
 ex.ITI3 = 9; %+9 sec break every 10 trial
 ex.flipsPerSec = 60;  % 60;         % number of phase changes we want from the visual stimulus, and thus the number of times we want to change visual stimulation on the screen
 ex.flipWin = 1/ex.flipsPerSec;         % in seconds then actually in 1 sec the stimuli will change 12 times 
-ex.stim.cycPerSec = 1.5; %drifting speed in cycles of grating per sec
+ex.stim.cycPerSec = 2;%1.5; %drifting speed in cycles of grating per sec
 ex.stim.motionRate = 360*ex.stim.cycPerSec; %drifting speed in degrees of visual angle per sec
 ex.stim.dphase = ex.stim.motionRate/ex.flipsPerSec; %degrees per flip
 
 
 %%%% Test stimulus: counterphasing grating
 ex.test.contrastOffset = ex.stim.backgroundLum(1,1)./255;% 
-ex.test.contrast = 0.07;
+ex.test.contrast = 0.075;
 ex.test.luminanceRange = 2*ex.test.contrast*ex.test.contrastOffset;%0.1; %linspace(0.01,0.20,10);%[0.05, 0.10, 0.15];                                                 % in %, maybe?? %here the number of stimulus contrast levels is the number of different conditions
 ex.test.contrastMultiplicator = ex.test.luminanceRange/2;  % for sine wave 0.5 = 100% contrast, 0.2 = 40%
 ex.test.gaborHDeg = (2/3)*ex.stim.gapSizeDeg;                                                  % in degrees of visual angle
@@ -360,7 +360,7 @@ ylineBot = yc + ex.lineH/2;
 ylineTop = yc - ex.lineH/2; 
 
 %% %%%% initial window - wait for backtick
-DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n report your initial percept using the following keys: \n\n press the left arrow if test stimulus appears to move leftward, \n\n the right arrow if test stimulus appears to move rightward, \n\n or down arrow if the motion direction is ambiguous \n\n Press Space to start'... % :  '...
+DrawFormattedText(w,'Fixate the fixation dot as best as you can. \n\n After each drifting stimulus disappears, \n\n report your initial percept using the following keys: \n\n press the left arrow if the test stimulus appears to move leftward, \n\n the right arrow if the test stimulus appears to move rightward, \n\n or down arrow if the motion direction is ambiguous \n\n Press Space to start'... % :  '...
     ,xc/2, yc/2,[0 0 0]);
 Screen(w, 'Flip', 0);
 %WaitSecs(2);
@@ -467,8 +467,12 @@ for c = 1:length(ex.condShuffle)
         
         if length(ex.longFormBlocks(1:n))/60 == ex.blockLength+ex.testLength && c ~= length(ex.condShuffle) %(cnt/2 == 1 && GetSecs-time >= ex.blockLength+ex.testLength) && c ~= length(ex.condShuffle)
             WaitSecs(ex.ITI1);
-            %             [ex.respT(cnt),~,~] =KbWait(deviceNumber,2);
-            DrawFormattedText(w,sprintf('Press Space whenever \n\n you feel ready \n\n for trial %d / %d', c+1, length(ex.condShuffle)),(4/5)*xc, yc/2,[0 0 0]); %left instruction
+            
+            if mod(c,10)
+                DrawFormattedText(w,'Press Space whenever \n\n you feel ready \n\n for the next trial',(4/5)*xc, yc/2,[0 0 0]); %left instruction
+            else
+                DrawFormattedText(w,sprintf('Press Space whenever \n\n you feel ready \n\n for trial %d / %d', c+1, length(ex.condShuffle)),(4/5)*xc, yc/2,[0 0 0]); %left instruction
+            end
             %% Fixation
             %             Screen('DrawDots', w, [xc yc], ex.fixSize, [255 255 255], [], 2);
             Screen('DrawLines', w, [xline, xline; ylineBot, ylineTop], ex.lineW, [30 30 30]);
