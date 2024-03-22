@@ -61,9 +61,8 @@ ex.stim.gapSizeDeg = 2.6; %4;
 ex.stim.distFromFixDeg = (ex.stim.gaborHDeg+ex.stim.gapSizeDeg)/2;%3;%2; %1.5 %each grating edge 1.5 deg horizontal away from fixation (grating center 6 deg away)
 
 ex.stim.backgroundLum = [60 60 60];
-ex.stim.contrast = [0.075 0.075 0.075 0.15 0.15 0.15 0.60 0.60 0.60];
-ex.stim.contrastOffset = [(ex.stim.backgroundLum(1)./255)./(1-ex.stim.contrast(1)), ex.stim.backgroundLum(1)./255, (ex.stim.backgroundLum(1)./255)./(1-ex.stim.contrast(1)),(ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast(4)),...
-    ex.stim.backgroundLum(1)./255,(ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast(4)),(ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast(7)), ex.stim.backgroundLum(1)./255,(ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast(7))];%+ex.stim.contrast/2;
+ex.stim.contrast = [0.15];
+ex.stim.contrastOffset = [(ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast(1))];%+ex.stim.contrast/2;
 ex.stim.luminanceRange = 2*ex.stim.contrast.*ex.stim.contrastOffset;
 ex.stim.contrastMultiplicator = ex.stim.luminanceRange./2;  % for sine wave
 
@@ -76,7 +75,7 @@ ex.stim.contrast = (ex.stim.maxLum-ex.stim.minLum)./(ex.stim.maxLum+ex.stim.minL
 %%%% sine wave grating timing (within block scale)
 ex.initialFixation = 6;        % in seconds
 ex.finalFixation = 2;          % in seconds
-ex.blockLength = 45; %45; %120; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
+ex.blockLength = 45; %120; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
 ex.ITI2 = .5;% in seconds
 % ex.betweenBlocks = 2;          % in seconds
 ex.flipsPerSec = 60;  % 60;         % number of phase changes we want from the visual stimulus, and thus the number of times we want to change visual stimulation on the screen
@@ -119,9 +118,7 @@ ex.stim.horiDistFromFixDeg = ex.stim.gaborWDeg*3/8;
 
 %%%% conditions & layout (across blocks scale)
 
-ex.conds = {'LowContPhRight','LowContPhLeft','LowContPhCtRight','LowContPhCtLeft','LowContFullRight','LowContFullLeft'...
-    'MedContPhRight','MedContPhLeft','MedContPhCtRight','MedContPhCtLeft','MedContFullRight','MedContFullLeft', ...%
-    'HighContPhRight','HighContPhLeft','HighContPhCtRight','HighContPhCtLeft','HighContFullRight','HighContFullLeft'
+ex.conds = {'MedContFullRight','MedContFullLeft', ...%
        }; 
 ex.repsPerRun = repmat(2,length(ex.conds),1);%[10 10 10 10];              % repetitions of each condition per run
 condIdx = 1:length(ex.conds); %[1,4,7]; %conditions we are interested to keep
@@ -138,20 +135,8 @@ for i =1:ex.repsPerRun(1)
 end
 
 
-keepConds = [11 12];
-ex.condShuffle = ex.condShuffle(ismember(ex.condShuffle, keepConds));
-% ex.totalTime = [];
-% for t =1:length(ex.blockLength) %there is a different block length for every drifting speed
-%     if t == 1
-%         ex.totalTime = sum([ex.totalTime, ex.initialFixation + (ex.numBlocks/length(ex.blockLength) * (ex.blockLength(t) + ex.testLength))]);
-%     elseif t <length(ex.blockLength) && t > 1
-%              ex.totalTime = sum([ex.totalTime, (ex.numBlocks/length(ex.blockLength) * (ex.blockLength(t) + ex.testLength))]); 
-%     elseif t == length(ex.blockLength)
-%         ex.totalTime = sum([ex.totalTime, ((ex.numBlocks/length(ex.blockLength)-1) * (ex.blockLength(t) + ex.testLength)) + ex.blockLength(t) + ex.finalFixation]);
-%     end
-% end
-% ex.allFlips = (0:ex.flipWin:ex.totalTime);
-% ex.allFlips = ex.allFlips(1:end-1);
+% keepConds = [11 12];
+% ex.condShuffle = ex.condShuffle(ismember(ex.condShuffle, keepConds));
 ex.trialFlips = (0:ex.flipWin:ex.blockLength(1));%+ex.testLength
 ex.trialFlips = ex.trialFlips(1:end-1);
 
@@ -581,10 +566,7 @@ for c = 1:length(ex.condShuffle)
             end
                pressed = 0;
         end
-%         if  (pressed == 1) & (firstRelease(KbName('Space')) > 0)
-%             ex.endTimes = [ex.endTimes, firstPress(KbName('Space'))- ex.startRun];
-%             pressed = 0;
-%         end
+
         %%%% refresh queue for next character
         KbQueueFlush();
         f = f+1;
@@ -609,6 +591,70 @@ if ~exist(savedir); mkdir(savedir); end
 savename = fullfile(savedir, strcat(sprintf('/%s_static_MAE_test_%s_date%s_fix',subject,ex.version,num2str(ex.date)), '.mat'));
 %save(savename,'ex');
 save(savename,'ex','-v7.3')
+
+clear c cnt condNum
+teststarts = ex.flipTime(ex.blockLength*ex.flipsPerSec,1:end)-ex.startRun; 
+testends = ex.releaseTimes;%ex.flipTime(end,1:end)-ex.startRun;  
+responseType = [1, 2, 3];
+condNums = ex.condShuffle;
+conditions = ex.conds;%(keepConds);
+% respFreq = nan(length(responseType), condNums);
+respDat = zeros(length(responseType), max(ex.repsPerRun), length(conditions)); %response time data better organized
+
+cnt = zeros(length(conditions),1);
+for c =1:length(condNums)
+    condNum = condNums(c);  
+    cnt(condNum) = cnt(condNum)+1; %counting rep number
+    tstart = teststarts(c);
+    tend = testends(c);
+    
+    respTimes = ex.pressTimes(ex.pressTimes > tstart &  ex.pressTimes < tend);
+    resps = ex.resp(ex.pressTimes > tstart &  ex.pressTimes < tend);
+
+    if ~isempty(resps)
+        respDat(resps(end), cnt(condNum), condNum) = respDat(resps(end), cnt(condNum), condNum)+1; %resps(end) to take the last response in case the participant corrected a mistake
+    end
+    
+end
+
+respFreq = squeeze(sum(respDat,2));
+same_diff = zeros(length(responseType),length(conditions)/2);
+for c =1:length(conditions)
+    for t = 1:size(respFreq,1)
+        %same direction
+        if contains(conditions(c), 'Right') && t == 1
+            condcnt = ceil(c/2);
+            same_diff(1,condcnt) = same_diff(1,condcnt)+ respFreq(t,c);
+        elseif contains(conditions(c), 'Left') && t == 2
+            condcnt = ceil(c/2);
+            same_diff(1,condcnt) = same_diff(1,condcnt)+ respFreq(t,c);
+            %ambiguous direction
+        elseif t == 3
+            condcnt = ceil(c/2);
+            same_diff(2,condcnt) = same_diff(2,condcnt)+ respFreq(t,c);
+            %opposite direction  
+        elseif contains(conditions(c), 'Right') && t == 2
+            condcnt = ceil(c/2);
+            same_diff(3,condcnt) = same_diff(3,condcnt)+ respFreq(t,c);
+        elseif  contains(conditions(c), 'Left') && t == 1
+            condcnt = ceil(c/2);
+            same_diff(3,condcnt) = same_diff(3,condcnt)+ respFreq(t,c);
+            
+        end
+        
+    end
+    
+end
+    
+%bias
+score=[0; 0.5;1]; %score each percept type: 0 = same, 0.5 = ambiguous, 1 = opposite
+bias = same_diff.*score;
+percentBias = nan(size(bias,2),1);
+for c =1:size(bias,2)
+    
+    percentBias(c) = 100*sum(bias(:,c))/sum(same_diff(:,c));
+    fprintf('Percent Bias %d\n', percentBias(c));
+end
 
 ShowCursor;
 Screen('Close');
