@@ -423,9 +423,9 @@ end
 ex.runTime = GetSecs - ex.startRun;
 ex.rectSWave = [];
 ex.testSWave = [];
-savedir = fullfile(ex.root,'data',sprintf('static_MAE/%s/s%s_%s/',ex.version, subject,ex.version));
+savedir = fullfile(ex.root,'data',sprintf('static_MAE/%s/%s_%s/',ex.version, subject,ex.version));
 if ~exist(savedir); mkdir(savedir); end
-savename = fullfile(savedir, strcat(sprintf('/s%s_percept_test_%s_date%s_fix',subject,ex.version,num2str(ex.date)), '.mat'));
+savename = fullfile(savedir, strcat(sprintf('/%s_percept_test_%s_date%s_fix',subject,ex.version,num2str(ex.date)), '.mat'));
 %save(savename,'ex');
 save(savename,'ex','-v7.3')
 
