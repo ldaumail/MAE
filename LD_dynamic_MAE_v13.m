@@ -114,7 +114,7 @@ ex.conds = {'LowContPhRight','LowContPhLeft','LowContPhCtRight','LowContPhCtLeft
     'MedContPhRight','MedContPhLeft','MedContPhCtRight','MedContPhCtLeft', ...%
     'HighContPhRight','HighContPhLeft','HighContPhCtRight','HighContPhCtLeft'
        }; 
-ex.repsPerRun = [16 16 16 16 16 16 16 16 16 16 16 16];              % repetitions of each condition per run
+ex.repsPerRun = repmat(12,length(ex.conds),1);;              % repetitions of each condition per run
 condIdx = 1:length(ex.conds); %[1,4,7]; %conditions we are interested to keep
 ex.conds = ex.conds(condIdx);
 ex.repsPerRun = ex.repsPerRun(condIdx);
