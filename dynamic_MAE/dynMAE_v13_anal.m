@@ -1,10 +1,9 @@
+%MAE Test stimulus with constant background luminance v13
 
-%MAE Test stimulus with constant contrast v11
-
-names = {'sub-01', 'sub-02','sub-04','sub-05','sub-06','sub-07', 'sub-08', 'sub-09', 'sub-10'}; %'sub-03'
-version = 'v11';
+names = {'sub-01','sub-02','sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07', 'sub-10'}; %'sub-03'
+version = 'v13';
 responseType = [1, 2, 3];
-respFreq = nan(length(responseType), 12, length(names));
+respFreq = nan(length(responseType), 18, length(names));
 % gapSize = [];
 for i =1:length(names)
     name = names{i};
@@ -18,7 +17,7 @@ for i =1:length(names)
     fileDir = fileNames.folder;
     exptDat = load(strcat(fileNames(1).folder,'/',fileNames(1).name));
     exptDat = exptDat.ex;
-    conditions = exptDat.conds;
+    conditions1 = exptDat.conds;
     condNums = exptDat.condShuffle;
     
     
@@ -27,7 +26,6 @@ for i =1:length(names)
    
     
     respDat = zeros(length(responseType), max(exptDat.repsPerRun), exptDat.numConds); %response time data better organized
-    % respFreq = nan(length(responseType), max(exptDat.repsPerRun), exptDat.numConds); %response frequency data better organized
     
     cnt = zeros(length(condNums),1);
     
@@ -37,7 +35,7 @@ for i =1:length(names)
         tstart = teststarts(c);
         tend = testends(c);
         respTimes = exptDat.responseTimes(exptDat.responseTimes > tstart &  exptDat.responseTimes < tend);
-        resps = exptDat.correctResp(exptDat.responseTimes > tstart &  exptDat.responseTimes < tend);
+        resps = exptDat.resp(exptDat.responseTimes > tstart &  exptDat.responseTimes < tend);
         resps
         if ~isempty(resps)
             
@@ -45,8 +43,39 @@ for i =1:length(names)
             
         end
     end
-    respFreq(:,:,i) = squeeze(sum(respDat,2));
-%     gapSize = [gapSize; exptDat.stim.distFromFixDeg];
+    respFreq(:,1:length(conditions1),i) = squeeze(sum(respDat,2));
+
+    clear exptDat condNums teststarts testends cnt
+    exptDat = load(strcat(fileNames(2).folder,'/',fileNames(2).name));
+    exptDat = exptDat.ex;
+    conditions2 = exptDat.conds;
+    condNums = exptDat.condShuffle;
+    
+    
+    teststarts = exptDat.flipTime(exptDat.blockLength*exptDat.flipsPerSec,1:end)-exptDat.startRun; %exptDat.blockLength*exptDat.flipsPerSec%trial test start time relative to experiment start time
+    testends = exptDat.flipTime(end,1:end)-exptDat.startRun+exptDat.ITI1;  %trial test end time relative to experiment start time
+   
+    
+    respDat = zeros(length(responseType), max(exptDat.repsPerRun), exptDat.numConds); %response time data better organized
+    
+    cnt = zeros(length(condNums),1);
+    
+    for c =1:length(condNums)
+        condNum = condNums(c);
+        cnt(condNum) = cnt(condNum)+1; %counting rep number
+        tstart = teststarts(c);
+        tend = testends(c);
+        respTimes = exptDat.responseTimes(exptDat.responseTimes > tstart &  exptDat.responseTimes < tend);
+        resps = exptDat.resp(exptDat.responseTimes > tstart &  exptDat.responseTimes < tend);
+        resps
+        if ~isempty(resps)
+            
+            respDat(resps(end), cnt(condNum), condNum) = respDat(resps(end), cnt(condNum), condNum)+1; %resps(end) to take the last response in case the participant corrected a mistake
+            
+        end
+    end
+    respFreq(:,length(conditions1)+1:length(conditions1)+length(conditions2),i) = squeeze(sum(respDat,2));
+
 end
 %% Luminance levels check 
 % 
@@ -61,27 +90,27 @@ end
 
 
 %% Look at "same" vs "different" direction percepts
-
+conditions = {conditions1{:}, conditions2{:}};
 same_diff = zeros(3,length(conditions)/2, length(names));
 for i = 1:length(names)
     for c =1:length(conditions)
         for t = 1:size(respFreq,1)
             %same direction
-            if contains(conditions(c), 'Up') && t == 1
+            if contains(conditions(c), 'Right') && t == 1
                 condcnt = ceil(c/2);
                 same_diff(1,condcnt,i) = same_diff(1,condcnt,i)+ respFreq(t,c,i);
-            elseif contains(conditions(c), 'Down') && t == 3
+            elseif contains(conditions(c), 'Left') && t == 2
                 condcnt = ceil(c/2);
                 same_diff(1,condcnt,i) = same_diff(1,condcnt,i)+ respFreq(t,c,i);
                 %ambiguous direction
-            elseif t == 2
+            elseif t == 3
                 condcnt = ceil(c/2);
                 same_diff(2,condcnt,i) = same_diff(2,condcnt,i)+ respFreq(t,c,i);
                 %opposite direction
-            elseif contains(conditions(c), 'Up') && t == 3
+            elseif contains(conditions(c), 'Right') && t == 2
                 condcnt = ceil(c/2);
                 same_diff(3,condcnt,i) = same_diff(3,condcnt,i)+ respFreq(t,c,i);
-            elseif  contains(conditions(c), 'Down') && t == 1
+            elseif  contains(conditions(c), 'Left') && t == 1
                 condcnt = ceil(c/2);
                 same_diff(3,condcnt,i) = same_diff(3,condcnt,i)+ respFreq(t,c,i);
             end
@@ -89,44 +118,43 @@ for i = 1:length(names)
     end
 end
 
-
-
-yvar = 100*[same_diff(:,1,:)./sum(same_diff(:,1,:)), same_diff(:,3,:)./sum(same_diff(:,3,:)), same_diff(:,5,:)./sum(same_diff(:,5,:)),...
-     same_diff(:,2,:)./sum(same_diff(:,2,:)), same_diff(:,4,:)./sum(same_diff(:,4,:)), same_diff(:,6,:)./sum(same_diff(:,6,:)),...
-    ];
-
+yvar= [];
+for c = 1:size(same_diff,2)
+    yvar = [yvar, 100*same_diff(:,c,:)./sum(same_diff(:,c,:))];
+end
 percepts =  {'Same','Ambiguous','Opposite'};
-%   {'LowContPhUp'}    {'LowContPhDown'}    {'LowContPhCtUp'}    {'LowContPhCtDown'}    {'MedContPhUp'}    {'MedContPhDown'}    {'MedContPhCtUp'}    {'MedContPhCtDown'}
-%    {'HighContPhUp'}    {'HighContPhDown'}    {'HighContPhCtUp'}    {'HighContPhCtDown'}
 
-avgConditions = {sprintf('%s\\newline%s\\newline%s\n','Low Contrast Phantom'),  ...
-    sprintf('%s\\newline%s\\newline%s\n','Med Contrast Phantom'), ...
-    sprintf('%s\\newline%s\\newline%s\n','High Contrast Phantom'),... %
-    sprintf('%s\\newline%s\\newline%s\n','Low Contrast Phantom','Control'), ...
-    sprintf('%s\\newline%s\\newline%s\n','Med Contrast Phantom','Control'), ...
-    sprintf('%s\\newline%s\\newline%s\n','High Contrast Phantom','Control'),... %
+avgConditions = {sprintf('%s\\newline%s\\newline%s\n','Low Contrast Full'),  ...
+    sprintf('%s\\newline%s\\newline%s\n','Med Contrast Full'), ...
+    sprintf('%s\\newline%s\\newline%s\n','High Contrast Full'),... %
+    sprintf('%s\\newline%s\\newline%s\n','Low Contrast Phantom'),  ...
+    sprintf('%s\\newline%s\\newline%s\n','Low Contrast Phantom Control'), ...
+    sprintf('%s\\newline%s\\newline%s\n','Med Contrast Phantom'),... 
+    sprintf('%s\\newline%s\\newline%s\n','Med Contrast Phantom Control'),... 
+    sprintf('%s\\newline%s\\newline%s\n','High Contrast Phantom'),... 
+    sprintf('%s\\newline%s\\newline%s\n','High Contrast Phantom Control'),... 
     };
 ylab = {'Proportion of occurence of each percept (%)'};
 ylims = [0 110];
-barPlot2Group(yvar,avgConditions, percepts, ylab, ylims)
+% barPlot2Group(yvar,avgConditions, percepts, ylab, ylims)
+singleBarPlot(yvar(:,:,2),avgConditions, percepts, ylab, ylims)
+% singleBarPlotSEM2(yvar,avgConditions, percepts, ylab, ylims)
 plotdir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/anal_plots/');
 mkdir(plotdir);
-saveas(gcf,strcat(plotdir, sprintf('proportion_percepts_same_opposite_%s_%s_sp4_test2point67_group.png', name, version)));
+saveas(gcf,strcat(plotdir, sprintf('proportion_percepts_%s_%s.png', name, version)));
 
 %% plot 2: subjects scatter plots + bar dots grouped by percept
 percepts =  {'Same','Ambiguous','Opposite'};
 
 avgConditions = {sprintf('%s\\newline%s\\newline%s\n','Low Contrast Phantom'),  ...
     sprintf('%s\\newline%s\\newline%s\n','Med Contrast Phantom'), ...
-    sprintf('%s\\newline%s\\newline%s\n','High Contrast Phantom'),... %
-    sprintf('%s\\newline%s\\newline%s\n','Low Contrast Phantom','Control'), ...
-    sprintf('%s\\newline%s\\newline%s\n','Med Contrast Phantom','Control'), ...
-    sprintf('%s\\newline%s\\newline%s\n','High Contrast Phantom','Control'),... %
+    sprintf('%s\\newline%s\\newline%s\n','High Contrast Phantom')... % %
     };
 ylab = {'Proportion of occurence of each percept (%)'};
 yval = permute(yvar, [1 3 2]);
+
 %  groupsDotBarPlotSEM(yval,avgConditions, percepts, ylab)
- groupsBarPlotSEM(yval,avgConditions, percepts, ylab)
+  groupsBarPlotSEM(yval,avgConditions, percepts, ylab)
  plotdir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/anal_plots/');
 mkdir(plotdir);
 saveas(gcf,strcat(plotdir, sprintf('proportion_percepts_same_opposite_%s_sp4_test2point67_group_subplot.svg', version)));
@@ -227,21 +255,21 @@ for i = 1:length(names)
     for c =1:length(conditions)
         for t = 1:size(respFreq,1)
             %same direction
-            if contains(conditions(c), 'Up') && t == 1
+            if contains(conditions(c), 'Right') && t == 1
                 condcnt = ceil(c/2);
                 same_diff(1,condcnt,i) = same_diff(1,condcnt,i)+ respFreq(t,c,i);
-            elseif contains(conditions(c), 'Down') && t == 3
+            elseif contains(conditions(c), 'Left') && t == 2
                 condcnt = ceil(c/2);
                 same_diff(1,condcnt,i) = same_diff(1,condcnt,i)+ respFreq(t,c,i);
                 %ambiguous direction
-            elseif t == 2
+            elseif t == 3
                 condcnt = ceil(c/2);
                 same_diff(2,condcnt,i) = same_diff(2,condcnt,i)+ respFreq(t,c,i);
                 %opposite direction
-            elseif contains(conditions(c), 'Up') && t == 3
+            elseif contains(conditions(c), 'Right') && t == 2
                 condcnt = ceil(c/2);
                 same_diff(3,condcnt,i) = same_diff(3,condcnt,i)+ respFreq(t,c,i);
-            elseif  contains(conditions(c), 'Down') && t == 1
+            elseif  contains(conditions(c), 'Left') && t == 1
                 condcnt = ceil(c/2);
                 same_diff(3,condcnt,i) = same_diff(3,condcnt,i)+ respFreq(t,c,i);
             end
@@ -262,34 +290,59 @@ for i =1:length(names)
     end
 end
 
-yvar = percentBias;
+% yvar = percentBias';
+% 
+% avgConditions = {sprintf('%s\\newline%s\\newline%s\n','Low Contrast Full'),  ...
+%     sprintf('%s\\newline%s\\newline%s\n','Med Contrast Full'), ...
+%     sprintf('%s\\newline%s\\newline%s\n','High Contrast Full'),... %
+%     sprintf('%s\\newline%s\\newline%s\n','Low Contrast Phantom'),  ...
+%     sprintf('%s\\newline%s\\newline%s\n','Low Contrast Phantom Control'), ...
+%     sprintf('%s\\newline%s\\newline%s\n','Med Contrast Phantom'),... 
+%     sprintf('%s\\newline%s\\newline%s\n','Med Contrast Phantom Control'),... 
+%     sprintf('%s\\newline%s\\newline%s\n','High Contrast Phantom'),... 
+%     sprintf('%s\\newline%s\\newline%s\n','High Contrast Phantom Control'),... 
+%     };
+% ylab = {'Percent bias (%)'};
+% ylims = [50 105];
+% 
+% % singleBarPlot(yvar(2,:),avgConditions, {'bias'}, ylab, ylims);
+%  singleBarLinePlotSEM(yvar,avgConditions, ylab, ylims)
 
-avgConditions = {sprintf('%s\\newline%s\\newline%s\n','Low Contrast Phantom'),  ...
-    sprintf('%s\\newline%s\\newline%s\n','Med Contrast Phantom'), ...
-    sprintf('%s\\newline%s\\newline%s\n','High Contrast Phantom'),... %
-    sprintf('%s\\newline%s\\newline%s\n','Low Contrast Phantom','Control'), ...
-    sprintf('%s\\newline%s\\newline%s\n','Med Contrast Phantom','Control'), ...
-    sprintf('%s\\newline%s\\newline%s\n','High Contrast Phantom','Control'),... %
-    };
+%  plotdir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/anal_plots/');
+% mkdir(plotdir);
+% saveas(gcf,strcat(plotdir, sprintf('percent_bias_%s_%s.png', version, name)));
+
+contLevel = {'Low', 'Medium', 'High'};
+conds = {'Full Grating','Phantom','Phantom Control'};
+
+condPercentBias = [percentBias(:,1), percentBias(:,2), percentBias(:,3), percentBias(:,4), percentBias(:,6), percentBias(:,8),  percentBias(:,5), percentBias(:,7), percentBias(:,9)];
+
+yvar = reshape(condPercentBias, length(names), length(contLevel),length(conds));
+
+% yval = permute(yvar, [3 1 2]); %subj resp x contrast level x cond
+
 ylab = {'Percent bias (%)'};
-ylims = [50 105];
+ylims = [40 120];
 
-singleBarPlotSEM3(yvar,avgConditions, {'bias'}, ylab, ylims);
-
+%   singleBarLinePlotSEM(percentBias',avgConditions, ylab, ylims)%  singleBarPlot(yvar(:,1)',avgConditions, {'bias'}, ylab, ylims);
+MAEBarPlotSEM(yvar,conds, ylab, ylims, contLevel)
 
 % singleBarDotPlotSEM3(yvar,avgConditions, {'bias'}, ylab, ylims);
  plotdir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/anal_plots/');
 mkdir(plotdir);
-saveas(gcf,strcat(plotdir, sprintf('percent_bias_%s_sp5.svg', version)));
+saveas(gcf,strcat(plotdir, sprintf('dynamicMAE_percent_bias_%s.png', version)));
 
 %% Histogram plot
 
 yvar = percentBias;
-avgConditions = {sprintf('%s\\newline%s\\newline%s\n','Low Contrast Phantom'),  ...
-    sprintf('%s\\newline%s\\newline%s\n','Med Contrast Phantom'), ...
-    sprintf('%s\\newline%s\\newline%s\n','High Contrast Phantom'),... %
+avgConditions = {sprintf('%s\\newline%s\\newline%s\n','Low Contrast Full'),  ...
+    sprintf('%s\\newline%s\\newline%s\n','Med Contrast Full'), ...
+    sprintf('%s\\newline%s\\newline%s\n','High Contrast Full'),... %
+    sprintf('%s\\newline%s\\newline%s\n','Low Contrast Phantom'),  ...
     sprintf('%s\\newline%s\\newline%s\n','Low Contrast Phantom','Control'), ...
+    sprintf('%s\\newline%s\\newline%s\n','Med Contrast Phantom'),... %
     sprintf('%s\\newline%s\\newline%s\n','Med Contrast Phantom','Control'), ...
+    sprintf('%s\\newline%s\\newline%s\n','High Contrast Phantom'), ...
     sprintf('%s\\newline%s\\newline%s\n','High Contrast Phantom','Control'),... %
     };
 conds = {'Phantom','Phantom control'};
