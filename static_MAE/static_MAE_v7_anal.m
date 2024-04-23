@@ -1,7 +1,11 @@
-names = {'sub-01','sub-02','sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07', 'sub-08','sub-09', 'sub-10', 'sub-11', 'sub-12', 'sub-13', 'sub-14'}; %'sub-03'
+%Loic Daumail
+
+
+names = {'sub-01','sub-02','sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07', 'sub-08','sub-09', 'sub-10', 'sub-11', 'sub-12', 'sub-13', 'sub-14', 'sub-15'}; %'sub-03'
 version = 'v7';
 responseType = [1, 2, 3];
 respFreq = nan(length(responseType), 18, length(names));
+respDur = nan(length(responseType),3, 18, length(names));
 % gapSize = [];
 for i =1:length(names)
     name = names{i};
@@ -16,7 +20,6 @@ for i =1:length(names)
     exptDat = exptDat.ex;
     conditions = exptDat.conds;
     condNums = exptDat.condShuffle;
-    
     
     teststarts = exptDat.flipTime(exptDat.blockLength*exptDat.flipsPerSec,1:end)-exptDat.startRun; %exptDat.blockLength*exptDat.flipsPerSec%trial test start time relative to experiment start time
     
@@ -52,10 +55,11 @@ for i =1:length(names)
         respTimes = exptDat.pressTimes(exptDat.pressTimes > tstart &  exptDat.pressTimes < tend);
         resps = exptDat.resp(exptDat.pressTimes > tstart &  exptDat.pressTimes < tend);
         resps
-        if ~isempty(resps)
-            
+        if ~isempty(resps) 
+            %Count response types
             respDat(resps(end), cnt(condNum), condNum) = respDat(resps(end), cnt(condNum), condNum)+1; %resps(end) to take the last response in case the participant corrected a mistake
-            
+            %Record Response duration from test onset time
+            respDur(resps(end), cnt(condNum), condNum, i) = tend - tstart;    
         end
     end
     respFreq(:,1:length(conditions),i) = squeeze(sum(respDat,2));
@@ -97,11 +101,11 @@ end
 %bias
 score=[0; 0.5;1]; %score each percept type: 0 = same, 0.5 = ambiguous, 1 = opposite
 bias = same_diff.*score;
-percentBias = nan(size(bias,2), length(names));
+percentBias = nan(length(names),size(bias,2));
 for i = 1:length(names)
     for c =1:size(bias,2)
         
-        percentBias(c,i) = 100*sum(bias(:,c,i))/sum(same_diff(:,c,i));
+        percentBias(i,c) = 100*sum(bias(:,c,i))/sum(same_diff(:,c,i));
         %     fprintf('Percent Bias %d\n', percentBias(c));
     end
 end
@@ -109,24 +113,171 @@ end
 contLevel = {'Low', 'Medium', 'High'};
 conds = {'Full Grating','Phantom','Phantom Control'};
 
-% condPercentBias = [percentBias(1,:); percentBias(2,:); percentBias(3,:); percentBias(4,:); percentBias(6,:); percentBias(8,:);  percentBias(5,:); percentBias(7,:); percentBias(9,:)];
-condPercentBias = [percentBias(3,:); percentBias(6,:); percentBias(9,:); percentBias(1,:); percentBias(4,:); percentBias(7,:);  percentBias(2,:); percentBias(5,:); percentBias(8,:)];
+condPercentBias = [percentBias(:,3), percentBias(:,6), percentBias(:,9), percentBias(:,1), percentBias(:,4), percentBias(:,7),  percentBias(:,2), percentBias(:,5), percentBias(:,8)];
 orderedConds = {'Full Low', 'Full Med', 'Full High', 'Phantom Low', 'Phantom Med', 'Phantom High',  'Phantom Control Low', 'Phantom Control Med', 'Phantom Control High'};
 
-yvar = reshape(condPercentBias, length(contLevel),length(conds),length(names));
+yvar = reshape(condPercentBias, length(names), length(contLevel),length(conds));
 
-yval = permute(yvar, [3 1 2]); %subj resp x contrast level x cond
 
 ylab = {'Percent bias (%)'};
 ylims = [40 110];
 
 %  singleBarLinePlotSEM(condPercentBias,orderedConds, ylab, ylims)%  singleBarPlot(yvar(:,1)',avgConditions, {'bias'}, ylab, ylims);
-MAEBarPlotSEM(yval,conds, ylab, ylims, contLevel)
+MAEBarPlotSEM(yvar,conds, ylab, ylims, contLevel)
 
 % singleBarDotPlotSEM3(yvar,conds, {'bias'}, ylab, ylims);
  plotdir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/anal_plots/');
 mkdir(plotdir);
 saveas(gcf,strcat(plotdir, sprintf('staticMAE_percent_bias_%s.png', version)));
 
-%%
+%% Stats
+%% Inducer type vs contrast interaction
 
+phcond = {'Full','Full','Full','Phantom','Phantom','Phantom','PhantomControl','PhantomControl','PhantomControl'};
+contLevels = {'Low';'Med';'High';'Low';'Med';'High';'Low';'Med';'High'};
+
+contrasts = [];
+phantoms = [];
+cont =[1 2 3 1 2 3 1 2 3]';
+ph = [1 1 1 2 2 2 3 3 3]';
+for i =1:length(contLevels)
+    contrasts = [contrasts; repmat(cont(i),length(names),1)];
+    phantoms = [phantoms; repmat(ph(i),length(names),1)];
+end
+
+subjectsIdx = repmat(names',length(contLevels),1);%repmat((1:length(names))',length(condNames),1);
+
+
+data = reshape(condPercentBias, [size(condPercentBias,1)*size(condPercentBias,2),1]);
+tbl = table(subjectsIdx, data, contrasts, phantoms,'VariableNames',{'SubjectIndex','Response','Contrast','Phantom'});
+lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|SubjectIndex)+(Phantom-1|SubjectIndex)'); %
+
+[pVal, F, R] = coefTest(lme);
+
+
+%% ttests
+yvar = condPercentBias;
+
+[ttestMean(1), Pval(1),~,Stats(1).stats] = ttest(yvar(:,4),yvar(:,7));%phantom low vs phantom control low
+[ttestMean(2), Pval(2),~,Stats(2).stats] = ttest(yvar(:,5),yvar(:,8));%phantom med vs phantom control med
+[ttestMean(3), Pval(3),~,Stats(3).stats] = ttest(yvar(:,6),yvar(:,9));%phantom high vs phantom control high
+[ttestMean(4), Pval(4),~,Stats(4).stats] = ttest(yvar(:,4),yvar(:,5));%phantom low vs phantom med
+[ttestMean(5), Pval(5),~,Stats(5).stats] = ttest(yvar(:,5),yvar(:,6));%phantom med vs phantom high
+[ttestMean(6), Pval(6),~,Stats(6).stats] = ttest(yvar(:,4),yvar(:,6));%phantom low vs phantom high
+[ttestMean(7), Pval(7),~,Stats(7).stats] = ttest(yvar(:,7),yvar(:,8));%phantom control low vs phantom control med
+[ttestMean(8), Pval(8),~,Stats(8).stats] = ttest(yvar(:,8),yvar(:,9));%phantom control med vs phantom control high
+[ttestMean(9), Pval(9),~,Stats(9).stats] = ttest(yvar(:,6),yvar(:,9));%phantom control low vs phantom control high
+
+%% Response duration
+
+respCondDur(:,:,1,:) = [respDur(:,:,1,:), respDur(:,:,2,:)];
+respCondDur(:,:,2,:) = [respDur(:,:,3,:), respDur(:,:,4,:)];
+respCondDur(:,:,3,:) = [respDur(:,:,5,:), respDur(:,:,6,:)];
+respCondDur(:,:,4,:) = [respDur(:,:,7,:), respDur(:,:,8,:)];
+respCondDur(:,:,5,:) = [respDur(:,:,9,:), respDur(:,:,10,:)];
+respCondDur(:,:,6,:) = [respDur(:,:,11,:), respDur(:,:,12,:)];
+respCondDur(:,:,7,:) = [respDur(:,:,13,:), respDur(:,:,14,:)];
+respCondDur(:,:,8,:) = [respDur(:,:,15,:), respDur(:,:,16,:)];
+respCondDur(:,:,9,:) = [respDur(:,:,17,:), respDur(:,:,18,:)];
+
+
+same_diff = zeros(length(responseType),max(exptDat.repsPerRun)*2, length(conditions)/2, length(names));
+for i = 1:length(names)
+    for c =1:length(conditions)/2
+        for r = 1:max(exptDat.repsPerRun)*2
+            for t = 1:length(responseType) %response type % Right arrow was 1, Left arrow was 2 and Down arrow was 3
+                %same direction
+                if contains(conditions(c), 'Right') && t ==1 && ~isnan(respCondDur(t,r,c,i))
+                    same_diff(t,r,c,i) = NaN;
+                elseif contains(conditions(c), 'Left') && t == 2 && ~isnan(respCondDur(t,r,c,i))
+
+                    same_diff(t,r,c,i) = NaN;
+                    %No motion aftereffect
+                elseif t == 3 && ~isempty(respCondDur(t,r,c,i))
+                    same_diff(t,r,c,i) = NaN;
+                    %opposite direction
+                elseif contains(conditions(c), 'Right') && t == 2 && ~isnan(respCondDur(t,r,c,i))
+                    same_diff(t,r,c,i) = 1;
+                elseif  contains(conditions(c), 'Left') && t == 1 && ~isnan(respCondDur(t,r,c,i))
+                    same_diff(t,r,c,i) = 1;
+                    
+                end
+                
+            end
+        end
+    end
+end
+
+
+selectRespDurs = respCondDur.*same_diff;
+
+
+avgRespDurs = squeeze(nanmean(selectRespDurs,2));
+
+linearAvgRespDurs = nan(length(names),length(conditions)/2);
+for i =1:length(names)
+    for c =1:length(conditions)/2
+        for t =1:length(responseType)
+            if ~isnan(avgRespDurs(t,c,i))
+                linearAvgRespDurs(i,c) = avgRespDurs(t,c,i);
+            end
+        end
+    end
+end
+
+contLevel = {'Low', 'Medium', 'High'};
+conds = {'Full Grating','Phantom','Phantom Control'};
+
+responseDurations = [linearAvgRespDurs(:,3), linearAvgRespDurs(:,6), linearAvgRespDurs(:,9), linearAvgRespDurs(:,1), linearAvgRespDurs(:,4), linearAvgRespDurs(:,7),  linearAvgRespDurs(:,2), linearAvgRespDurs(:,5), linearAvgRespDurs(:,8)];
+orderedConds = {'Full Low', 'Full Med', 'Full High', 'Phantom Low', 'Phantom Med', 'Phantom High',  'Phantom Control Low', 'Phantom Control Med', 'Phantom Control High'};
+
+yvar = reshape(responseDurations, length(names), length(contLevel),length(conds));
+
+
+ylab = {'MAE duration (s)'};
+ylims = [0 5];
+
+%  singleBarLinePlotSEM(condPercentBias,orderedConds, ylab, ylims)%  singleBarPlot(yvar(:,1)',avgConditions, {'bias'}, ylab, ylims);
+MAEBarPlotSEM(yvar,conds, ylab, ylims, contLevel)
+
+% singleBarDotPlotSEM3(yvar,conds, {'bias'}, ylab, ylims);
+ plotdir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/anal_plots/');
+mkdir(plotdir);
+saveas(gcf,strcat(plotdir, sprintf('staticMAE_MAE_duration_%s.png', version)));   
+
+
+%% Stats
+%% Inducer type vs contrast interaction
+
+phcond = {'Full','Full','Full','Phantom','Phantom','Phantom','PhantomControl','PhantomControl','PhantomControl'};
+contLevels = {'Low';'Med';'High';'Low';'Med';'High';'Low';'Med';'High'};
+
+contrasts = [];
+phantoms = [];
+cont =[1 2 3 1 2 3 1 2 3]';
+ph = [1 1 1 2 2 2 3 3 3]';
+for i =1:length(contLevels)
+    contrasts = [contrasts; repmat(cont(i),length(names),1)];
+    phantoms = [phantoms; repmat(ph(i),length(names),1)];
+end
+
+subjectsIdx = repmat(names',length(contLevels),1);%repmat((1:length(names))',length(condNames),1);
+
+
+data = reshape(responseDurations, [size(responseDurations,1)*size(responseDurations,2),1]);
+tbl = table(subjectsIdx, data, contrasts, phantoms,'VariableNames',{'SubjectIndex','Response','Contrast','Phantom'});
+lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|SubjectIndex)+(Phantom-1|SubjectIndex)'); %
+
+[pVal, F, R] = coefTest(lme);
+%% ttests
+yvar = responseDurations;
+
+[ttestMean(1), Pval(1),~,Stats(1).stats] = ttest(yvar(:,4),yvar(:,7));%phantom low vs phantom control low
+[ttestMean(2), Pval(2),~,Stats(2).stats] = ttest(yvar(:,5),yvar(:,8));%phantom med vs phantom control med
+[ttestMean(3), Pval(3),~,Stats(3).stats] = ttest(yvar(:,6),yvar(:,9));%phantom high vs phantom control high
+[ttestMean(4), Pval(4),~,Stats(4).stats] = ttest(yvar(:,4),yvar(:,5));%phantom low vs phantom med
+[ttestMean(5), Pval(5),~,Stats(5).stats] = ttest(yvar(:,5),yvar(:,6));%phantom med vs phantom high
+[ttestMean(6), Pval(6),~,Stats(6).stats] = ttest(yvar(:,4),yvar(:,6));%phantom low vs phantom high
+[ttestMean(7), Pval(7),~,Stats(7).stats] = ttest(yvar(:,7),yvar(:,8));%phantom control low vs phantom control med
+[ttestMean(8), Pval(8),~,Stats(8).stats] = ttest(yvar(:,8),yvar(:,9));%phantom control med vs phantom control high
+[ttestMean(9), Pval(9),~,Stats(9).stats] = ttest(yvar(:,6),yvar(:,9));%phantom control low vs phantom control high

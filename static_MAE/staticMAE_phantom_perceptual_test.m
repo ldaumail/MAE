@@ -1,7 +1,7 @@
 version = 'v7';
-names = {'sub-01','sub-02','sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07', 'sub-08','sub-09'};%
+names = {'sub-01','sub-02','sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07', 'sub-08','sub-09', 'sub-10', 'sub-11', 'sub-12', 'sub-13', 'sub-14', 'sub-15'}; %'sub-03'
 
-resps = nan(4,3,length(names));
+resps = nan(2,12,length(names));
 for i =1:length(names)
     name = names{i};
     folderDir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/data',...

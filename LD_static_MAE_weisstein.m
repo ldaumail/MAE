@@ -6,7 +6,11 @@ function LD_static_MAE_weisstein(subject, session, debug)
 % debug = 0;
 
 
+<<<<<<< HEAD
 ex.version = 'v1';
+=======
+ex.version = 'v2';
+>>>>>>> e60c444fd4e9bbf91ab2b2d6f0d4b286cf8a3662
 %%%% resolution 
 if debug == 1
 
@@ -101,7 +105,11 @@ ex.stim.dphase = ex.stim.motionRate/ex.flipsPerSec; %degrees per flip
 
 %%%% Test stimulus: counterphasing grating
 ex.test.spatialFreqDeg = 1.5;
+<<<<<<< HEAD
 ex.test.contrastOffset = (ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast);%ex.stim.backgroundLum(:,1)./255;% 
+=======
+ex.test.contrastOffset = ex.stim.backgroundLum(:,1)./255;%(ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast);%ex.stim.backgroundLum(:,1)./255;% 
+>>>>>>> e60c444fd4e9bbf91ab2b2d6f0d4b286cf8a3662
 ex.test.contrast = 0.1;
 ex.test.luminanceRange = 2*ex.test.contrast*ex.test.contrastOffset;%0.1; %linspace(0.01,0.20,10);%[0.05, 0.10, 0.15];                                                 % in %, maybe?? %here the number of stimulus contrast levels is the number of different conditions
 ex.test.contrastMultiplicator = ex.test.luminanceRange/2;  % for sine wave 0.5 = 100% contrast, 0.2 = 40%
@@ -138,7 +146,11 @@ ex.yoffsetDeg = 0;%4; %degrees of visual angle
 %     %Here, the Left/Right indicator in the condition name corresponds to the phantom grating pair location on the screen 
 %     }; 
 ex.conds = {'MedContPhUp','MedContPhDown','MedContPhCtUp','MedContPhCtDown'};
+<<<<<<< HEAD
 ex.repsPerRun = [10 10 10 10];              % repetitions of each condition per run
+=======
+ex.repsPerRun = [4 4 4 4];%[10 10 10 10];              % repetitions of each condition per run
+>>>>>>> e60c444fd4e9bbf91ab2b2d6f0d4b286cf8a3662
 condIdx = 1:length(ex.conds); %[1,4,7]; %conditions we are interested to keep
 ex.conds = ex.conds(condIdx);
 ex.repsPerRun = ex.repsPerRun(condIdx);
@@ -470,6 +482,7 @@ for c = 1:length(ex.condShuffle)
         end
         
         
+<<<<<<< HEAD
         if length(ex.longFormBlocks(1:n))/60 == ex.blockLength+ex.testLength && c ~= length(ex.condShuffle) %(cnt/2 == 1 && GetSecs-time >= ex.blockLength+ex.testLength) && c ~= length(ex.condShuffle)
 %             WaitSecs(ex.ITI1);
             [~,~,~] =KbWait(deviceNumber,2);
@@ -487,6 +500,26 @@ for c = 1:length(ex.condShuffle)
             WaitSecs(ex.ITI2);
 %             
 
+=======
+        if length(ex.longFormBlocks(1:n))/60 == ex.blockLength+ex.testLength %&& c ~= length(ex.condShuffle) %(cnt/2 == 1 && GetSecs-time >= ex.blockLength+ex.testLength) && c ~= length(ex.condShuffle)
+            %             WaitSecs(ex.ITI1);
+            [~,~,~] =KbWait(deviceNumber,2);
+            cnt = cnt+1;
+            WaitSecs(ex.ITI1);
+            if c ~= length(ex.condShuffle)
+                %             [ex.respT(cnt),~,~] =KbWait(deviceNumber,2);
+                DrawFormattedText(w,'Press Space whenever \n\n you feel ready',(4/5)*xc, yc/2,[0 0 0]); %left instruction
+                %% Fixation
+                Screen('DrawDots', w, [xc yc+ex.yoffset], ex.fixSize, [255 255 255], [], 2);
+                Screen(w, 'Flip', 0);
+                [~,~,~] =KbWait(deviceNumber,2);
+                Screen('FillRect', w, ex.stim.backgroundLum(ceil(ex.condShuffle(c+1)/2),:));
+                Screen('DrawDots', w, [xc yc+ex.yoffset], ex.fixSize, [255 255 255], [], 2);
+                Screen(w, 'Flip', 0);
+                WaitSecs(ex.ITI2);
+                %
+            end
+>>>>>>> e60c444fd4e9bbf91ab2b2d6f0d4b286cf8a3662
         end
         %         if mod(cnt,10) == 0 && cnt >=1
         
