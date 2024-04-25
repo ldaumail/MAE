@@ -191,78 +191,82 @@ mkdir(plotdir);
 [ttestMean(2), Pval(2),~,Stats(2).stats] = ttest(yvar(:,6,1),yvar(:,7,1));%phantom med vs phantom control med
 [ttestMean(3), Pval(3),~,Stats(3).stats] = ttest(yvar(:,8,1),yvar(:,9,1));%phantom high vs phantom control high
 
-[ttestMean(4), Pval(4),~,Stats(4).stats] = ttest(yvar(:,4,1),yvar(:,6,1));%full low vs phantom low 
-[ttestMean(5), Pval(5),~,Stats(5).stats] = ttest(yvar(:,6,1),yvar(:,8,1));%full med vs phantom med 
-[ttestMean(6), Pval(6),~,Stats(6).stats] = ttest(yvar(:,4,1),yvar(:,8,1));%full high vs phantom high
+[ttestMean(4), Pval(4),~,Stats(4).stats] = ttest(yvar(:,1,1),yvar(:,4,1));%full low vs phantom low 
+[ttestMean(5), Pval(5),~,Stats(5).stats] = ttest(yvar(:,2,1),yvar(:,6,1));%full med vs phantom med 
+[ttestMean(6), Pval(6),~,Stats(6).stats] = ttest(yvar(:,3,1),yvar(:,8,1));%full high vs phantom high
 
-% [ttestMean(4), Pval(4),~,Stats(4).stats] =
-% ttest(yvar(:,4,1),yvar(:,6,1));%full low vs phantom control loow
-% [ttestMean(5), Pval(5),~,Stats(5).stats] = ttest(yvar(:,6,1),yvar(:,8,1));%phantom med vs phantom high
-% [ttestMean(6), Pval(6),~,Stats(6).stats] = ttest(yvar(:,4,1),yvar(:,8,1));%phantom low vs phantom high
-% 
+[ttestMean(4), Pval(7),~,Stats(7).stats] = ttest(yvar(:,1,1),yvar(:,5,1));%full low vs phantom control low
+[ttestMean(5), Pval(8),~,Stats(8).stats] = ttest(yvar(:,2,1),yvar(:,7,1));%full med vs phantom control med
+[ttestMean(6), Pval(9),~,Stats(9).stats] = ttest(yvar(:,3,1),yvar(:,9,1));%full high vs phantom control high
+
 
 
 
 %% ambiguous
 
-[ttestMean(1), Pval(1),~,Stats(1).stats] = ttest(yvar(2,1,:),yvar(2,4,:));%phantom low vs phantom control low
-[ttestMean(2), Pval(2),~,Stats(2).stats] = ttest(yvar(2,2,:),yvar(2,5,:));%phantom med vs phantom control med
-[ttestMean(3), Pval(3),~,Stats(3).stats] = ttest(yvar(2,3,:),yvar(2,6,:));%phantom high vs phantom control high
-[ttestMean(4), Pval(4),~,Stats(4).stats] = ttest(yvar(2,1,:),yvar(2,2,:));%phantom low vs phantom med
-[ttestMean(5), Pval(5),~,Stats(5).stats] = ttest(yvar(2,2,:),yvar(2,3,:));%phantom med vs phantom high
-[ttestMean(6), Pval(6),~,Stats(6).stats] = ttest(yvar(2,1,:),yvar(2,3,:));%phantom low vs phantom high
-[ttestMean(7), Pval(7),~,Stats(7).stats] = ttest(yvar(2,4,:),yvar(2,5,:));%phantom control low vs phantom control med
-[ttestMean(8), Pval(8),~,Stats(8).stats] = ttest(yvar(2,5,:),yvar(2,6,:));%phantom control med vs phantom control high
-[ttestMean(9), Pval(9),~,Stats(9).stats] = ttest(yvar(2,4,:),yvar(2,6,:));%phantom control low vs phantom control high
+[ttestMean(1), Pval(1),~,Stats(1).stats] = ttest(yvar(:,4,2),yvar(:,5,2));%phantom low vs phantom control low
+[ttestMean(2), Pval(2),~,Stats(2).stats] = ttest(yvar(:,6,2),yvar(:,7,2));%phantom med vs phantom control med
+[ttestMean(3), Pval(3),~,Stats(3).stats] = ttest(yvar(:,8,2),yvar(:,9,2));%phantom high vs phantom control high
 
+[ttestMean(4), Pval(4),~,Stats(4).stats] = ttest(yvar(:,1,2),yvar(:,4,2));%full low vs phantom low 
+[ttestMean(5), Pval(5),~,Stats(5).stats] = ttest(yvar(:,2,2),yvar(:,6,2));%full med vs phantom med 
+[ttestMean(6), Pval(6),~,Stats(6).stats] = ttest(yvar(:,3,2),yvar(:,8,2));%full high vs phantom high
+
+[ttestMean(4), Pval(7),~,Stats(7).stats] = ttest(yvar(:,1,2),yvar(:,5,2));%full low vs phantom control low
+[ttestMean(5), Pval(8),~,Stats(8).stats] = ttest(yvar(:,2,2),yvar(:,7,2));%full med vs phantom control med
+[ttestMean(6), Pval(9),~,Stats(9).stats] = ttest(yvar(:,3,2),yvar(:,9,2));%full high vs phantom control high
+% 
 %% opposite
 
 
-[ttestMean(1), Pval(1),~,Stats(1).stats] = ttest(yvar(3,1,:),yvar(3,4,:));%phantom low vs phantom control low
-[ttestMean(2), Pval(2),~,Stats(2).stats] = ttest(yvar(3,2,:),yvar(3,5,:));%phantom med vs phantom control med
-[ttestMean(3), Pval(3),~,Stats(3).stats] = ttest(yvar(3,3,:),yvar(3,6,:));%phantom high vs phantom control high
-[ttestMean(4), Pval(4),~,Stats(4).stats] = ttest(yvar(3,1,:),yvar(3,2,:));%phantom low vs phantom med
-[ttestMean(5), Pval(5),~,Stats(5).stats] = ttest(yvar(3,2,:),yvar(3,3,:));%phantom med vs phantom high
-[ttestMean(6), Pval(6),~,Stats(6).stats] = ttest(yvar(3,1,:),yvar(3,3,:));%phantom low vs phantom high
-[ttestMean(7), Pval(7),~,Stats(7).stats] = ttest(yvar(3,4,:),yvar(3,5,:));%phantom control low vs phantom control med
-[ttestMean(8), Pval(8),~,Stats(8).stats] = ttest(yvar(3,5,:),yvar(3,6,:));%phantom control med vs phantom control high
-[ttestMean(9), Pval(9),~,Stats(9).stats] = ttest(yvar(3,4,:),yvar(3,6,:));%phantom control low vs phantom control high
+[ttestMean(1), Pval(1),~,Stats(1).stats] = ttest(yvar(:,4,3),yvar(:,5,3));%phantom low vs phantom control low
+[ttestMean(2), Pval(2),~,Stats(2).stats] = ttest(yvar(:,6,3),yvar(:,7,3));%phantom med vs phantom control med
+[ttestMean(3), Pval(3),~,Stats(3).stats] = ttest(yvar(:,8,3),yvar(:,9,3));%phantom high vs phantom control high
+
+[ttestMean(4), Pval(4),~,Stats(4).stats] = ttest(yvar(:,1,3),yvar(:,4,3));%full low vs phantom low 
+[ttestMean(5), Pval(5),~,Stats(5).stats] = ttest(yvar(:,2,3),yvar(:,6,3));%full med vs phantom med 
+[ttestMean(6), Pval(6),~,Stats(6).stats] = ttest(yvar(:,3,3),yvar(:,8,3));%full high vs phantom high
+
+[ttestMean(4), Pval(7),~,Stats(7).stats] = ttest(yvar(:,1,3),yvar(:,5,3));%full low vs phantom control low
+[ttestMean(5), Pval(8),~,Stats(8).stats] = ttest(yvar(:,2,3),yvar(:,7,3));%full med vs phantom control med
+[ttestMean(6), Pval(9),~,Stats(9).stats] = ttest(yvar(:,3,3),yvar(:,9,3));%full high vs phantom control high
 
 
 %% Inducer type vs contrast interaction
 
-phcond = {'Phantom','Phantom','Phantom','PhantomControl','PhantomControl','PhantomControl'};
-contLevels = {'Low';'Med';'High';'Low';'Med';'High'};
+phcond = {'Full','Full','Full','Phantom','Phantom','Phantom','PhantomControl','PhantomControl','PhantomControl'};
+contLevels = {'Low';'Med';'High';'Low';'Med';'High';'Low';'Med';'High'};
+
+
+ph = [1 1 1 2 2 2 3 3 3]';
+cont =[1 2 3 1 2 3 1 2 3]';
 
 contrasts = [];
 phantoms = [];
-cont =[1 2 3 1 2 3]';
-ph = [1 1 1 2 2 2]';
-
-contrasts = repmat(cont,length(names),1);
-phantoms = repmat(ph,length(names),1);
-
-subjectsIdx = [];
-for i =1:length(names)
-    subjectsIdx = [subjectsIdx, repmat(names(i),1,length(contLevels))];%repmat((1:length(names))',length(condNames),1);
+for c =1:length(cont)
+    contrasts = [contrasts; repmat(cont(c),length(names),1)];
+    phantoms = [phantoms; repmat(ph(c),length(names),1)];
 end
+subjectsIdx = [];
+subjectsIdx = repmat(names,1,length(contLevels));%repmat((1:length(names))',length(condNames),1);
 
-%% same
-data = reshape(yvar(1,:,:), [size(yvar(1,:,:),2)*size(yvar(1,:,:),3),1]);
+% %% same
+data = reshape(condMAEDir(:,:,1), [size(condMAEDir(:,:,1),1)*size(condMAEDir(:,:,1),2),1]);
 tbl = table(subjectsIdx', data, contrasts, phantoms,'VariableNames',{'SubjectIndex','Response','Contrast','Phantom'});
 lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|SubjectIndex)+(Phantom-1|SubjectIndex)'); %
 
 [pVal, F, R] = coefTest(lme);
 
+% 
 %% ambiguous
-data = reshape(yvar(2,:,:), [size(yvar(2,:,:),2)*size(yvar(2,:,:),3),1]);
+data = reshape(condMAEDir(:,:,2), [size(condMAEDir(:,:,2),1)*size(condMAEDir(:,:,2),2),1]);
 tbl = table(subjectsIdx', data, contrasts, phantoms,'VariableNames',{'SubjectIndex','Response','Contrast','Phantom'});
 lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|SubjectIndex)+(Phantom-1|SubjectIndex)'); %
 
 [pVal, F, R] = coefTest(lme);
-
-%% opposite
-data = reshape(yvar(3,:,:), [size(yvar(3,:,:),2)*size(yvar(3,:,:),3),1]);
+% 
+% %% opposite
+data = reshape(condMAEDir(:,:,3), [size(condMAEDir(:,:,3),1)*size(condMAEDir(:,:,3),2),1]);
 tbl = table(subjectsIdx', data, contrasts, phantoms,'VariableNames',{'SubjectIndex','Response','Contrast','Phantom'});
 lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|SubjectIndex)+(Phantom-1|SubjectIndex)'); %
 
@@ -320,7 +324,7 @@ condPercentBias = [percentBias(:,1), percentBias(:,2), percentBias(:,3), percent
 yvar = reshape(condPercentBias, length(names), length(contLevel),length(conds));
 
 ylab = {'Percent bias (%)'};
-ylims = [40 110];
+ylims = [50 110];
 
 %%singleBarLinePlotSEM(percentBias',avgConditions, ylab, ylims)%  singleBarPlot(yvar(:,1)',avgConditions, {'bias'}, ylab, ylims);
 MAEBarPlotSEM(yvar,conds, ylab, ylims, contLevel)
@@ -328,7 +332,7 @@ MAEBarPlotSEM(yvar,conds, ylab, ylims, contLevel)
 % singleBarDotPlotSEM3(yvar,avgConditions, {'bias'}, ylab, ylims);
  plotdir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/anal_plots/');
 mkdir(plotdir);
-saveas(gcf,strcat(plotdir, sprintf('dynamicMAE_percent_bias_%s.png', version)));
+saveas(gcf,strcat(plotdir, sprintf('dynamicMAE_percent_bias_%s.svg', version)));
 %% %% Inducer type vs contrast interaction
 
 phcond = {'Full','Full','Full','Phantom','Phantom','Phantom','PhantomControl','PhantomControl','PhantomControl'};
@@ -336,8 +340,11 @@ contLevels = {'Low';'Med';'High';'Low';'Med';'High';'Low';'Med';'High'};
 
 contrasts = [];
 phantoms = [];
-cont =[1 2 3 1 2 3 1 2 3]';
 ph = [1 1 1 2 2 2 3 3 3]';
+cont =[1 2 3 1 2 3 1 2 3]';
+
+
+
 for i =1:length(contLevels)
     contrasts = [contrasts; repmat(cont(i),length(names),1)];
     phantoms = [phantoms; repmat(ph(i),length(names),1)];
@@ -355,15 +362,27 @@ lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|Subject
 %% ttests
 yvar = condPercentBias;
 
-[ttestMean(1), Pval(1),~,Stats(1).stats] = ttest(yvar(:,4),yvar(:,7));%phantom low vs phantom control low
-[ttestMean(2), Pval(2),~,Stats(2).stats] = ttest(yvar(:,5),yvar(:,8));%phantom med vs phantom control med
-[ttestMean(3), Pval(3),~,Stats(3).stats] = ttest(yvar(:,6),yvar(:,9));%phantom high vs phantom control high
-[ttestMean(4), Pval(4),~,Stats(4).stats] = ttest(yvar(:,4),yvar(:,5));%phantom low vs phantom med
-[ttestMean(5), Pval(5),~,Stats(5).stats] = ttest(yvar(:,5),yvar(:,6));%phantom med vs phantom high
-[ttestMean(6), Pval(6),~,Stats(6).stats] = ttest(yvar(:,4),yvar(:,6));%phantom low vs phantom high
-[ttestMean(7), Pval(7),~,Stats(7).stats] = ttest(yvar(:,7),yvar(:,8));%phantom control low vs phantom control med
-[ttestMean(8), Pval(8),~,Stats(8).stats] = ttest(yvar(:,8),yvar(:,9));%phantom control med vs phantom control high
-[ttestMean(9), Pval(9),~,Stats(9).stats] = ttest(yvar(:,6),yvar(:,9));%phantom control low vs phantom control high
+% [ttestMean(1), Pval(1),~,Stats(1).stats] = ttest(yvar(:,4),yvar(:,7));%phantom low vs phantom control low
+% [ttestMean(2), Pval(2),~,Stats(2).stats] = ttest(yvar(:,5),yvar(:,8));%phantom med vs phantom control med
+% [ttestMean(3), Pval(3),~,Stats(3).stats] = ttest(yvar(:,6),yvar(:,9));%phantom high vs phantom control high
+% [ttestMean(4), Pval(4),~,Stats(4).stats] = ttest(yvar(:,4),yvar(:,5));%phantom low vs phantom med
+% [ttestMean(5), Pval(5),~,Stats(5).stats] = ttest(yvar(:,5),yvar(:,6));%phantom med vs phantom high
+% [ttestMean(6), Pval(6),~,Stats(6).stats] = ttest(yvar(:,4),yvar(:,6));%phantom low vs phantom high
+% [ttestMean(7), Pval(7),~,Stats(7).stats] = ttest(yvar(:,7),yvar(:,8));%phantom control low vs phantom control med
+% [ttestMean(8), Pval(8),~,Stats(8).stats] = ttest(yvar(:,8),yvar(:,9));%phantom control med vs phantom control high
+% [ttestMean(9), Pval(9),~,Stats(9).stats] = ttest(yvar(:,6),yvar(:,9));%phantom control low vs phantom control high
+% 
+[ttestMean(1), Pval(1),~,Stats(1).stats] = ttest(yvar(:,4),yvar(:,5));%phantom low vs phantom control low
+[ttestMean(2), Pval(2),~,Stats(2).stats] = ttest(yvar(:,6),yvar(:,7));%phantom med vs phantom control med
+[ttestMean(3), Pval(3),~,Stats(3).stats] = ttest(yvar(:,8),yvar(:,9));%phantom high vs phantom control high
+
+[ttestMean(4), Pval(4),~,Stats(4).stats] = ttest(yvar(:,1),yvar(:,4,1));%full low vs phantom low 
+[ttestMean(5), Pval(5),~,Stats(5).stats] = ttest(yvar(:,2),yvar(:,6,1));%full med vs phantom med 
+[ttestMean(6), Pval(6),~,Stats(6).stats] = ttest(yvar(:,3),yvar(:,8,1));%full high vs phantom high
+
+[ttestMean(4), Pval(7),~,Stats(7).stats] = ttest(yvar(:,1),yvar(:,5,1));%full low vs phantom control low
+[ttestMean(5), Pval(8),~,Stats(8).stats] = ttest(yvar(:,2),yvar(:,7,1));%full med vs phantom control med
+[ttestMean(6), Pval(9),~,Stats(9).stats] = ttest(yvar(:,3),yvar(:,9,1));%full high vs phantom control high
 
 
 %% Histogram plot
