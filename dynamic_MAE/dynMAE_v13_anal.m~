@@ -1,6 +1,6 @@
 %MAE Test stimulus with constant background luminance v13
 
-names = {'sub-01','sub-02','sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07','sub-08','sub-09', 'sub-10', 'sub-11', 'sub-12', 'sub-13', 'sub-14'};%
+names = {'sub-01','sub-02','sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07','sub-08','sub-09', 'sub-10', 'sub-11', 'sub-12', 'sub-13', 'sub-14', 'sub-15'};%
 version = 'v13';
 responseType = [1, 2, 3];
 respFreq = nan(length(responseType), 18, length(names));
@@ -91,28 +91,28 @@ end
 
 %% Look at "same" vs "different" direction percepts
 conditions = {conditions1{:}, conditions2{:}};
-same_diff = zeros(3,length(conditions)/2, length(names));
+same_diff = zeros(length(names),length(conditions)/2, 3);
 for i = 1:length(names)
     for c =1:length(conditions)
         for t = 1:size(respFreq,1)
             %same direction
             if contains(conditions(c), 'Right') && t == 1
                 condcnt = ceil(c/2);
-                same_diff(1,condcnt,i) = same_diff(1,condcnt,i)+ respFreq(t,c,i);
+                same_diff(i,condcnt,1) = same_diff(i,condcnt,1)+ respFreq(t,c,i);
             elseif contains(conditions(c), 'Left') && t == 2
                 condcnt = ceil(c/2);
-                same_diff(1,condcnt,i) = same_diff(1,condcnt,i)+ respFreq(t,c,i);
+                same_diff(i,condcnt,1) = same_diff(i,condcnt,1)+ respFreq(t,c,i);
                 %ambiguous direction
             elseif t == 3
                 condcnt = ceil(c/2);
-                same_diff(2,condcnt,i) = same_diff(2,condcnt,i)+ respFreq(t,c,i);
+                same_diff(i,condcnt,2) = same_diff(i,condcnt,2)+ respFreq(t,c,i);
                 %opposite direction
             elseif contains(conditions(c), 'Right') && t == 2
                 condcnt = ceil(c/2);
-                same_diff(3,condcnt,i) = same_diff(3,condcnt,i)+ respFreq(t,c,i);
+                same_diff(i,condcnt,3) = same_diff(i,condcnt,3)+ respFreq(t,c,i);
             elseif  contains(conditions(c), 'Left') && t == 1
                 condcnt = ceil(c/2);
-                same_diff(3,condcnt,i) = same_diff(3,condcnt,i)+ respFreq(t,c,i);
+                same_diff(i,condcnt,3) = same_diff(i,condcnt,3)+ respFreq(t,c,i);
             end
         end
     end
@@ -120,44 +120,59 @@ end
 
 yvar= [];
 for c = 1:size(same_diff,2)
-    yvar = [yvar, 100*same_diff(:,c,:)./sum(same_diff(:,c,:))];
+    yvar = [yvar, 100*same_diff(:,c,:)./sum(same_diff(:,c,:),3)];
 end
-percepts =  {'Same','Ambiguous','Opposite'};
-
-avgConditions = {sprintf('%s\\newline%s\\newline%s\n','Low Contrast Full'),  ...
-    sprintf('%s\\newline%s\\newline%s\n','Med Contrast Full'), ...
-    sprintf('%s\\newline%s\\newline%s\n','High Contrast Full'),... %
-    sprintf('%s\\newline%s\\newline%s\n','Low Contrast Phantom'),  ...
-    sprintf('%s\\newline%s\\newline%s\n','Low Contrast Phantom Control'), ...
-    sprintf('%s\\newline%s\\newline%s\n','Med Contrast Phantom'),... 
-    sprintf('%s\\newline%s\\newline%s\n','Med Contrast Phantom Control'),... 
-    sprintf('%s\\newline%s\\newline%s\n','High Contrast Phantom'),... 
-    sprintf('%s\\newline%s\\newline%s\n','High Contrast Phantom Control'),... 
-    };
-ylab = {'Proportion of occurence of each percept (%)'};
-ylims = [0 110];
-% barPlot2Group(yvar,avgConditions, percepts, ylab, ylims)
-singleBarPlot(yvar(:,:,2),avgConditions, percepts, ylab, ylims)
-% singleBarPlotSEM2(yvar,avgConditions, percepts, ylab, ylims)
-plotdir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/anal_plots/');
-mkdir(plotdir);
-saveas(gcf,strcat(plotdir, sprintf('proportion_percepts_%s_%s.png', name, version)));
+% percepts =  {'Same','Ambiguous','Opposite'};
+% 
+% avgConditions = {sprintf('%s\\newline%s\\newline%s\n','Low Contrast Full'),  ...
+%     sprintf('%s\\newline%s\\newline%s\n','Med Contrast Full'), ...
+%     sprintf('%s\\newline%s\\newline%s\n','High Contrast Full'),... %
+%     sprintf('%s\\newline%s\\newline%s\n','Low Contrast Phantom'),  ...
+%     sprintf('%s\\newline%s\\newline%s\n','Low Contrast Phantom Control'), ...
+%     sprintf('%s\\newline%s\\newline%s\n','Med Contrast Phantom'),... 
+%     sprintf('%s\\newline%s\\newline%s\n','Med Contrast Phantom Control'),... 
+%     sprintf('%s\\newline%s\\newline%s\n','High Contrast Phantom'),... 
+%     sprintf('%s\\newline%s\\newline%s\n','High Contrast Phantom Control'),... 
+%     };
+% ylab = {'Proportion of occurence of each percept (%)'};
+% ylims = [0 110];
+% % barPlot2Group(yvar,avgConditions, percepts, ylab, ylims)
+% singleBarPlot(yvar(:,:,2),avgConditions, percepts, ylab, ylims)
+% % singleBarPlotSEM2(yvar,avgConditions, percepts, ylab, ylims)
+% plotdir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/anal_plots/');
+% mkdir(plotdir);
+% saveas(gcf,strcat(plotdir, sprintf('proportion_percepts_%s_%s.png', name, version)));
 
 %% plot 2: subjects scatter plots + bar dots grouped by percept
 percepts =  {'Same','Ambiguous','Opposite'};
 
-avgConditions = {sprintf('%s\\newline%s\\newline%s\n','Low Contrast Phantom'),  ...
-    sprintf('%s\\newline%s\\newline%s\n','Med Contrast Phantom'), ...
-    sprintf('%s\\newline%s\\newline%s\n','High Contrast Phantom')... % %
-    };
+% avgConditions = {sprintf('%s\\newline%s\\newline%s\n','Low Contrast Full'),  ...
+%     sprintf('%s\\newline%s\\newline%s\n','Med Contrast Full'), ...
+%     sprintf('%s\\newline%s\\newline%s\n','High Contrast Full'),... %
+%     sprintf('%s\\newline%s\\newline%s\n','Low Contrast Phantom'),  ...
+%     sprintf('%s\\newline%s\\newline%s\n','Low Contrast Phantom Control'), ...
+%     sprintf('%s\\newline%s\\newline%s\n','Med Contrast Phantom'),... 
+%     sprintf('%s\\newline%s\\newline%s\n','Med Contrast Phantom Control'),... 
+%     sprintf('%s\\newline%s\\newline%s\n','High Contrast Phantom'),... 
+%     sprintf('%s\\newline%s\\newline%s\n','High Contrast Phantom Control'),... 
+%     };
 ylab = {'Proportion of occurence of each percept (%)'};
-yval = permute(yvar, [1 3 2]);
+% yval = permute(yvar, [1 3 2]); %respType * subjs * all conds
+%%groupsDotBarPlotSEM(yval,avgConditions, percepts, ylab)
+%   groupsBarPlotSEM(yval,avgConditions, percepts, ylab)
 
-%  groupsDotBarPlotSEM(yval,avgConditions, percepts, ylab)
-  groupsBarPlotSEM(yval,avgConditions, percepts, ylab)
+ 
+contLevel = {'Low', 'Medium', 'High'};
+conds = {'Full Grating','Phantom','Phantom Control'};
+% condMAEDir is subjs * all conds * respType here
+condMAEDir = [yvar(:,1,:), yvar(:,2,:), yvar(:,3,:), yvar(:,4,:), yvar(:,6,:), yvar(:,8,:),  yvar(:,5,:), yvar(:,7,:), yvar(:,9,:)];
+
+yvar2 = reshape(condMAEDir, length(names), length(contLevel), length(conds), length(responseType));
+ylims = [0 20; 0 20; 60 105];
+groupsBarPlotSEM2(yvar2,conds, contLevel, percepts, ylab,ylims)
  plotdir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/anal_plots/');
 mkdir(plotdir);
-saveas(gcf,strcat(plotdir, sprintf('proportion_percepts_same_opposite_%s_sp4_test2point67_group_subplot.svg', version)));
+ saveas(gcf,strcat(plotdir, sprintf('proportion_percepts_same_opposite_%s_group_subplot.svg', version)));
 
 
 %% stats
@@ -172,15 +187,20 @@ saveas(gcf,strcat(plotdir, sprintf('proportion_percepts_same_opposite_%s_sp4_tes
 
 %% Same
 
-[ttestMean(1), Pval(1),~,Stats(1).stats] = ttest(yvar(1,1,:),yvar(1,4,:));%phantom low vs phantom control low
-[ttestMean(2), Pval(2),~,Stats(2).stats] = ttest(yvar(1,2,:),yvar(1,5,:));%phantom med vs phantom control med
-[ttestMean(3), Pval(3),~,Stats(3).stats] = ttest(yvar(1,3,:),yvar(1,6,:));%phantom high vs phantom control high
-[ttestMean(4), Pval(4),~,Stats(4).stats] = ttest(yvar(1,1,:),yvar(1,2,:));%phantom low vs phantom med
-[ttestMean(5), Pval(5),~,Stats(5).stats] = ttest(yvar(1,2,:),yvar(1,3,:));%phantom med vs phantom high
-[ttestMean(6), Pval(6),~,Stats(6).stats] = ttest(yvar(1,1,:),yvar(1,3,:));%phantom low vs phantom high
-[ttestMean(7), Pval(7),~,Stats(7).stats] = ttest(yvar(1,4,:),yvar(1,5,:));%phantom control low vs phantom control med
-[ttestMean(8), Pval(8),~,Stats(8).stats] = ttest(yvar(1,5,:),yvar(1,6,:));%phantom control med vs phantom control high
-[ttestMean(9), Pval(9),~,Stats(9).stats] = ttest(yvar(1,4,:),yvar(1,6,:));%phantom control low vs phantom control high
+[ttestMean(1), Pval(1),~,Stats(1).stats] = ttest(yvar(:,4,1),yvar(:,5,1));%phantom low vs phantom control low
+[ttestMean(2), Pval(2),~,Stats(2).stats] = ttest(yvar(:,6,1),yvar(:,7,1));%phantom med vs phantom control med
+[ttestMean(3), Pval(3),~,Stats(3).stats] = ttest(yvar(:,8,1),yvar(:,9,1));%phantom high vs phantom control high
+
+[ttestMean(4), Pval(4),~,Stats(4).stats] = ttest(yvar(:,4,1),yvar(:,6,1));%full low vs phantom low 
+[ttestMean(5), Pval(5),~,Stats(5).stats] = ttest(yvar(:,6,1),yvar(:,8,1));%full med vs phantom med 
+[ttestMean(6), Pval(6),~,Stats(6).stats] = ttest(yvar(:,4,1),yvar(:,8,1));%full high vs phantom high
+
+% [ttestMean(4), Pval(4),~,Stats(4).stats] =
+% ttest(yvar(:,4,1),yvar(:,6,1));%full low vs phantom control loow
+% [ttestMean(5), Pval(5),~,Stats(5).stats] = ttest(yvar(:,6,1),yvar(:,8,1));%phantom med vs phantom high
+% [ttestMean(6), Pval(6),~,Stats(6).stats] = ttest(yvar(:,4,1),yvar(:,8,1));%phantom low vs phantom high
+% 
+
 
 
 %% ambiguous
@@ -299,18 +319,52 @@ condPercentBias = [percentBias(:,1), percentBias(:,2), percentBias(:,3), percent
 
 yvar = reshape(condPercentBias, length(names), length(contLevel),length(conds));
 
-% yval = permute(yvar, [3 1 2]); %subj resp x contrast level x cond
-
 ylab = {'Percent bias (%)'};
-ylims = [40 120];
+ylims = [40 110];
 
-%   singleBarLinePlotSEM(percentBias',avgConditions, ylab, ylims)%  singleBarPlot(yvar(:,1)',avgConditions, {'bias'}, ylab, ylims);
+%%singleBarLinePlotSEM(percentBias',avgConditions, ylab, ylims)%  singleBarPlot(yvar(:,1)',avgConditions, {'bias'}, ylab, ylims);
 MAEBarPlotSEM(yvar,conds, ylab, ylims, contLevel)
 
 % singleBarDotPlotSEM3(yvar,avgConditions, {'bias'}, ylab, ylims);
  plotdir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/anal_plots/');
 mkdir(plotdir);
 saveas(gcf,strcat(plotdir, sprintf('dynamicMAE_percent_bias_%s.png', version)));
+%% %% Inducer type vs contrast interaction
+
+phcond = {'Full','Full','Full','Phantom','Phantom','Phantom','PhantomControl','PhantomControl','PhantomControl'};
+contLevels = {'Low';'Med';'High';'Low';'Med';'High';'Low';'Med';'High'};
+
+contrasts = [];
+phantoms = [];
+cont =[1 2 3 1 2 3 1 2 3]';
+ph = [1 1 1 2 2 2 3 3 3]';
+for i =1:length(contLevels)
+    contrasts = [contrasts; repmat(cont(i),length(names),1)];
+    phantoms = [phantoms; repmat(ph(i),length(names),1)];
+end
+
+subjectsIdx = repmat(names',length(contLevels),1);%repmat((1:length(names))',length(condNames),1);
+
+
+data = reshape(condPercentBias, [size(condPercentBias,1)*size(condPercentBias,2),1]);
+tbl = table(subjectsIdx, data, contrasts, phantoms,'VariableNames',{'SubjectIndex','Response','Contrast','Phantom'});
+lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|SubjectIndex)+(Phantom-1|SubjectIndex)'); %
+
+[pVal, F, R] = coefTest(lme);
+
+%% ttests
+yvar = condPercentBias;
+
+[ttestMean(1), Pval(1),~,Stats(1).stats] = ttest(yvar(:,4),yvar(:,7));%phantom low vs phantom control low
+[ttestMean(2), Pval(2),~,Stats(2).stats] = ttest(yvar(:,5),yvar(:,8));%phantom med vs phantom control med
+[ttestMean(3), Pval(3),~,Stats(3).stats] = ttest(yvar(:,6),yvar(:,9));%phantom high vs phantom control high
+[ttestMean(4), Pval(4),~,Stats(4).stats] = ttest(yvar(:,4),yvar(:,5));%phantom low vs phantom med
+[ttestMean(5), Pval(5),~,Stats(5).stats] = ttest(yvar(:,5),yvar(:,6));%phantom med vs phantom high
+[ttestMean(6), Pval(6),~,Stats(6).stats] = ttest(yvar(:,4),yvar(:,6));%phantom low vs phantom high
+[ttestMean(7), Pval(7),~,Stats(7).stats] = ttest(yvar(:,7),yvar(:,8));%phantom control low vs phantom control med
+[ttestMean(8), Pval(8),~,Stats(8).stats] = ttest(yvar(:,8),yvar(:,9));%phantom control med vs phantom control high
+[ttestMean(9), Pval(9),~,Stats(9).stats] = ttest(yvar(:,6),yvar(:,9));%phantom control low vs phantom control high
+
 
 %% Histogram plot
 
@@ -333,29 +387,29 @@ percentHistogram(yvar',avgConditions, xlab, ylab,[0 5])
 mkdir(plotdir);
 saveas(gcf,strcat(plotdir, sprintf('percent_bias_histogram_%s_sp5.png', version)));
 
-%% Inducer type vs contrast interaction
-
-phcond = {'Phantom','Phantom','Phantom','PhantomControl','PhantomControl','PhantomControl'};
-contLevels = {'Low';'Med';'High';'Low';'Med';'High'};
-
-contrasts = [];
-phantoms = [];
-cont =[1 2 3 1 2 3]';
-ph = [1 1 1 2 2 2]';
-for i =1:length(contLevels)
-    contrasts = [contrasts; repmat(cont(i),length(names),1)];
-    phantoms = [phantoms; repmat(ph(i),length(names),1)];
-end
-
-subjectsIdx = repmat(names,1,length(contLevels));%repmat((1:length(names))',length(condNames),1);
-
+% %% Inducer type vs contrast interaction
+% 
+% phcond = {'Phantom','Phantom','Phantom','PhantomControl','PhantomControl','PhantomControl'};
+% contLevels = {'Low';'Med';'High';'Low';'Med';'High'};
+% 
+% contrasts = [];
+% phantoms = [];
+% cont =[1 2 3 1 2 3]';
+% ph = [1 1 1 2 2 2]';
+% for i =1:length(contLevels)
+%     contrasts = [contrasts; repmat(cont(i),length(names),1)];
+%     phantoms = [phantoms; repmat(ph(i),length(names),1)];
+% end
+% 
+% subjectsIdx = repmat(names,1,length(contLevels));%repmat((1:length(names))',length(condNames),1);
+% 
 
 %% Percent bias
-data = reshape(yvar(:,:), [size(yvar(:,:),1)*size(yvar(:,:),2),1]);
-tbl = table(subjectsIdx', data, contrasts, phantoms,'VariableNames',{'SubjectIndex','Response','Contrast','Phantom'});
-lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|SubjectIndex)+(Phantom-1|SubjectIndex)'); %
-
-[pVal, F, R] = coefTest(lme);
+% data = reshape(yvar(:,:), [size(yvar(:,:),1)*size(yvar(:,:),2),1]);
+% tbl = table(subjectsIdx', data, contrasts, phantoms,'VariableNames',{'SubjectIndex','Response','Contrast','Phantom'});
+% lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|SubjectIndex)+(Phantom-1|SubjectIndex)'); %
+% 
+% [pVal, F, R] = coefTest(lme);
 
 
 [ttestMean(1), Pval(1),~,Stats(1).stats] = ttest(yvar(:,1),yvar(:,4));%phantom low vs phantom control low
