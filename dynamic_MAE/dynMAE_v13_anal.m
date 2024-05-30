@@ -1,6 +1,6 @@
 %MAE Test stimulus with constant background luminance v13
 
-names = {'sub-01','sub-02','sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07','sub-08','sub-09', 'sub-10', 'sub-11', 'sub-12', 'sub-13', 'sub-14', 'sub-15'};%
+names = {'sub-01','sub-02','sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07','sub-08','sub-09', 'sub-10', 'sub-11', 'sub-12', 'sub-13', 'sub-14', 'sub-15', 'sub-16', 'sub-17', 'sub-18','sub-19','sub-20'};%
 version = 'v13';
 responseType = [1, 2, 3];
 respFreq = nan(length(responseType), 18, length(names));
@@ -214,7 +214,7 @@ data = reshape(condMAEDir(:,:,1), [size(condMAEDir(:,:,1),1)*size(condMAEDir(:,:
 tbl = table(subjectsIdx', data, contrasts, phantoms,'VariableNames',{'SubjectIndex','Response','Contrast','Phantom'});
 lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|SubjectIndex)+(Phantom-1|SubjectIndex)'); %
 
-[pVal, F, R] = coefTest(lme);
+[pVal, F, DF1, DF2] = coefTest(lme);
 
 % 
 %% ambiguous
@@ -222,116 +222,116 @@ data = reshape(condMAEDir(:,:,2), [size(condMAEDir(:,:,2),1)*size(condMAEDir(:,:
 tbl = table(subjectsIdx', data, contrasts, phantoms,'VariableNames',{'SubjectIndex','Response','Contrast','Phantom'});
 lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|SubjectIndex)+(Phantom-1|SubjectIndex)'); %
 
-[pVal, F, R] = coefTest(lme);
+[pVal, F, DF1, DF2] = coefTest(lme);
 % 
 % %% opposite
 data = reshape(condMAEDir(:,:,3), [size(condMAEDir(:,:,3),1)*size(condMAEDir(:,:,3),2),1]);
 tbl = table(subjectsIdx', data, contrasts, phantoms,'VariableNames',{'SubjectIndex','Response','Contrast','Phantom'});
 lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|SubjectIndex)+(Phantom-1|SubjectIndex)'); %
 
-[pVal, F, R] = coefTest(lme);
+[pVal, F, DF1, DF2] = coefTest(lme);
 
 %% Percent bias
-conditions = {conditions1{:}, conditions2{:}};
-
-same_diff = zeros(3,length(conditions)/2, length(names));
-for i = 1:length(names)
-    for c =1:length(conditions)
-        for t = 1:size(respFreq,1)
-            %same direction
-            if contains(conditions(c), 'Right') && t == 1
-                condcnt = ceil(c/2);
-                same_diff(1,condcnt,i) = same_diff(1,condcnt,i)+ respFreq(t,c,i);
-            elseif contains(conditions(c), 'Left') && t == 2
-                condcnt = ceil(c/2);
-                same_diff(1,condcnt,i) = same_diff(1,condcnt,i)+ respFreq(t,c,i);
-                %ambiguous direction
-            elseif t == 3
-                condcnt = ceil(c/2);
-                same_diff(2,condcnt,i) = same_diff(2,condcnt,i)+ respFreq(t,c,i);
-                %opposite direction
-            elseif contains(conditions(c), 'Right') && t == 2
-                condcnt = ceil(c/2);
-                same_diff(3,condcnt,i) = same_diff(3,condcnt,i)+ respFreq(t,c,i);
-            elseif  contains(conditions(c), 'Left') && t == 1
-                condcnt = ceil(c/2);
-                same_diff(3,condcnt,i) = same_diff(3,condcnt,i)+ respFreq(t,c,i);
-            end
-        end
-    end
-end
-
-%bias
-score=[0; 0.5; 1]; %score each percept type: 0 = same, 0.5 = ambiguous, 1 = opposite
-
-bias = same_diff.*score;
-
-percentBias = nan(size(bias,3),size(bias,2));
-
-for i =1:length(names)
-    for c =1:size(bias,2)
-        percentBias(i,c) = 100*sum(bias(:,c,i))/sum(same_diff(:,c,i));
-    end
-end
-
-%% Plot
-contLevel = {'Low', 'Medium', 'High'};
-conds = {'Full Grating','Phantom','Phantom Control'};
-
-condPercentBias = [percentBias(:,1), percentBias(:,2), percentBias(:,3), percentBias(:,4), percentBias(:,6), percentBias(:,8),  percentBias(:,5), percentBias(:,7), percentBias(:,9)];
-
-yvar = reshape(condPercentBias, length(names), length(contLevel),length(conds));
-
-ylab = {'Percent bias (%)'};
-ylims = [50 110];
-
-%%singleBarLinePlotSEM(percentBias',avgConditions, ylab, ylims)%  singleBarPlot(yvar(:,1)',avgConditions, {'bias'}, ylab, ylims);
-MAEBarPlotSEM(yvar,conds, ylab, ylims, contLevel)
-
-% singleBarDotPlotSEM3(yvar,avgConditions, {'bias'}, ylab, ylims);
- plotdir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/anal_plots/');
-mkdir(plotdir);
-saveas(gcf,strcat(plotdir, sprintf('dynamicMAE_percent_bias_%s.png', version)));
-%% %% Inducer type vs contrast interaction
-
-phcond = {'Full','Full','Full','Phantom','Phantom','Phantom','PhantomControl','PhantomControl','PhantomControl'};
-contLevels = {'Low';'Med';'High';'Low';'Med';'High';'Low';'Med';'High'};
-
-contrasts = [];
-phantoms = [];
-ph = [1 1 1 2 2 2 3 3 3]';
-cont =[1 2 3 1 2 3 1 2 3]';
-
-
-
-for i =1:length(contLevels)
-    contrasts = [contrasts; repmat(cont(i),length(names),1)];
-    phantoms = [phantoms; repmat(ph(i),length(names),1)];
-end
-
-subjectsIdx = repmat(names',length(contLevels),1);%repmat((1:length(names))',length(condNames),1);
-
-
-data = reshape(condPercentBias, [size(condPercentBias,1)*size(condPercentBias,2),1]);
-tbl = table(subjectsIdx, data, contrasts, phantoms,'VariableNames',{'SubjectIndex','Response','Contrast','Phantom'});
-lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|SubjectIndex)+(Phantom-1|SubjectIndex)'); %
-
-[pVal, F, R] = coefTest(lme);
-
-%% ttests
-yvar = condPercentBias;
-
-[ttestMean(1), Pval(1),~,Stats(1).stats] = ttest(yvar(:,1),yvar(:,2));%full low vs full med 
-[ttestMean(2), Pval(2),~,Stats(2).stats] = ttest(yvar(:,1),yvar(:,3));%full low vs full high 
-[ttestMean(3), Pval(3),~,Stats(3).stats] = ttest(yvar(:,2),yvar(:,3));%full med vs full high
-
-[ttestMean(4), Pval(4),~,Stats(4).stats] = ttest(yvar(:,4),yvar(:,5));%phantom low vs phantom med
-[ttestMean(5), Pval(5),~,Stats(5).stats] = ttest(yvar(:,4),yvar(:,6));%phantom low vs phantom high
-[ttestMean(6), Pval(6),~,Stats(6).stats] = ttest(yvar(:,5),yvar(:,6));%phantom med vs phantom high
-
-[ttestMean(7), Pval(7),~,Stats(7).stats] = ttest(yvar(:,7),yvar(:,8));%phantom control low vs phantom control med
-[ttestMean(8), Pval(8),~,Stats(8).stats] = ttest(yvar(:,7),yvar(:,9));%phantom control low vs phantom control high
-[ttestMean(9), Pval(9),~,Stats(9).stats] = ttest(yvar(:,8),yvar(:,9));%phantom control med vs phantom control high
+% conditions = {conditions1{:}, conditions2{:}};
+% 
+% same_diff = zeros(3,length(conditions)/2, length(names));
+% for i = 1:length(names)
+%     for c =1:length(conditions)
+%         for t = 1:size(respFreq,1)
+%             %same direction
+%             if contains(conditions(c), 'Right') && t == 1
+%                 condcnt = ceil(c/2);
+%                 same_diff(1,condcnt,i) = same_diff(1,condcnt,i)+ respFreq(t,c,i);
+%             elseif contains(conditions(c), 'Left') && t == 2
+%                 condcnt = ceil(c/2);
+%                 same_diff(1,condcnt,i) = same_diff(1,condcnt,i)+ respFreq(t,c,i);
+%                 %ambiguous direction
+%             elseif t == 3
+%                 condcnt = ceil(c/2);
+%                 same_diff(2,condcnt,i) = same_diff(2,condcnt,i)+ respFreq(t,c,i);
+%                 %opposite direction
+%             elseif contains(conditions(c), 'Right') && t == 2
+%                 condcnt = ceil(c/2);
+%                 same_diff(3,condcnt,i) = same_diff(3,condcnt,i)+ respFreq(t,c,i);
+%             elseif  contains(conditions(c), 'Left') && t == 1
+%                 condcnt = ceil(c/2);
+%                 same_diff(3,condcnt,i) = same_diff(3,condcnt,i)+ respFreq(t,c,i);
+%             end
+%         end
+%     end
+% end
+% 
+% %bias
+% score=[0; 0.5; 1]; %score each percept type: 0 = same, 0.5 = ambiguous, 1 = opposite
+% 
+% bias = same_diff.*score;
+% 
+% percentBias = nan(size(bias,3),size(bias,2));
+% 
+% for i =1:length(names)
+%     for c =1:size(bias,2)
+%         percentBias(i,c) = 100*sum(bias(:,c,i))/sum(same_diff(:,c,i));
+%     end
+% end
+% 
+% %% Plot
+% contLevel = {'Low', 'Medium', 'High'};
+% conds = {'Full Grating','Phantom','Phantom Control'};
+% 
+% condPercentBias = [percentBias(:,1), percentBias(:,2), percentBias(:,3), percentBias(:,4), percentBias(:,6), percentBias(:,8),  percentBias(:,5), percentBias(:,7), percentBias(:,9)];
+% 
+% yvar = reshape(condPercentBias, length(names), length(contLevel),length(conds));
+% 
+% ylab = {'Percent bias (%)'};
+% ylims = [50 110];
+% 
+% %%singleBarLinePlotSEM(percentBias',avgConditions, ylab, ylims)%  singleBarPlot(yvar(:,1)',avgConditions, {'bias'}, ylab, ylims);
+% MAEBarPlotSEM(yvar,conds, ylab, ylims, contLevel)
+% 
+% % singleBarDotPlotSEM3(yvar,avgConditions, {'bias'}, ylab, ylims);
+%  plotdir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/anal_plots/');
+% mkdir(plotdir);
+% saveas(gcf,strcat(plotdir, sprintf('dynamicMAE_percent_bias_%s.png', version)));
+% %% %% Inducer type vs contrast interaction
+% 
+% phcond = {'Full','Full','Full','Phantom','Phantom','Phantom','PhantomControl','PhantomControl','PhantomControl'};
+% contLevels = {'Low';'Med';'High';'Low';'Med';'High';'Low';'Med';'High'};
+% 
+% contrasts = [];
+% phantoms = [];
+% ph = [1 1 1 2 2 2 3 3 3]';
+% cont =[1 2 3 1 2 3 1 2 3]';
+% 
+% 
+% 
+% for i =1:length(contLevels)
+%     contrasts = [contrasts; repmat(cont(i),length(names),1)];
+%     phantoms = [phantoms; repmat(ph(i),length(names),1)];
+% end
+% 
+% subjectsIdx = repmat(names',length(contLevels),1);%repmat((1:length(names))',length(condNames),1);
+% 
+% 
+% data = reshape(condPercentBias, [size(condPercentBias,1)*size(condPercentBias,2),1]);
+% tbl = table(subjectsIdx, data, contrasts, phantoms,'VariableNames',{'SubjectIndex','Response','Contrast','Phantom'});
+% lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|SubjectIndex)+(Phantom-1|SubjectIndex)'); %
+% 
+% [pVal, F, R] = coefTest(lme);
+% 
+% %% ttests
+% yvar = condPercentBias;
+% 
+% [ttestMean(1), Pval(1),~,Stats(1).stats] = ttest(yvar(:,1),yvar(:,2));%full low vs full med 
+% [ttestMean(2), Pval(2),~,Stats(2).stats] = ttest(yvar(:,1),yvar(:,3));%full low vs full high 
+% [ttestMean(3), Pval(3),~,Stats(3).stats] = ttest(yvar(:,2),yvar(:,3));%full med vs full high
+% 
+% [ttestMean(4), Pval(4),~,Stats(4).stats] = ttest(yvar(:,4),yvar(:,5));%phantom low vs phantom med
+% [ttestMean(5), Pval(5),~,Stats(5).stats] = ttest(yvar(:,4),yvar(:,6));%phantom low vs phantom high
+% [ttestMean(6), Pval(6),~,Stats(6).stats] = ttest(yvar(:,5),yvar(:,6));%phantom med vs phantom high
+% 
+% [ttestMean(7), Pval(7),~,Stats(7).stats] = ttest(yvar(:,7),yvar(:,8));%phantom control low vs phantom control med
+% [ttestMean(8), Pval(8),~,Stats(8).stats] = ttest(yvar(:,7),yvar(:,9));%phantom control low vs phantom control high
+% [ttestMean(9), Pval(9),~,Stats(9).stats] = ttest(yvar(:,8),yvar(:,9));%phantom control med vs phantom control high
 
 
 %% Subtract Same from Opposite Percent Bias
@@ -437,7 +437,7 @@ data = reshape(condPercentBias, [size(condPercentBias,1)*size(condPercentBias,2)
 tbl = table(subjectsIdx, data, contrasts, phantoms,'VariableNames',{'SubjectIndex','Response','Contrast','Phantom'});
 lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|SubjectIndex)+(Phantom-1|SubjectIndex)'); %
 
-[pVal, F, R] = coefTest(lme);
+[pVal, F, DF1, DF2] = coefTest(lme);
 
 %%
 % 

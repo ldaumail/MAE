@@ -1,7 +1,7 @@
 %Loic Daumail
 
 
-names = {'sub-01','sub-02','sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07', 'sub-08','sub-09', 'sub-10',  'sub-12', 'sub-13', 'sub-14', 'sub-15'}; %'sub-11' <60% for all 3 full grating conditions
+names = {'sub-01','sub-02','sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07', 'sub-08','sub-09', 'sub-10', 'sub-12', 'sub-13', 'sub-14', 'sub-15', 'sub-16', 'sub-17', 'sub-18', 'sub-19', 'sub-20'};%'sub-11',
 version = 'v7';
 responseType = [1, 2, 3];
 respFreq = nan(length(responseType), 18, length(names));
@@ -185,7 +185,7 @@ data = reshape(condMAEDir(:,:,1), [size(condMAEDir(:,:,1),1)*size(condMAEDir(:,:
 tbl = table(subjectsIdx', data, contrasts, phantoms,'VariableNames',{'SubjectIndex','Response','Contrast','Phantom'});
 lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|SubjectIndex)+(Phantom-1|SubjectIndex)'); %
 
-[pVal, F, R] = coefTest(lme);
+[pVal, F, DF1, DF2] = coefTest(lme);
 
 % 
 %% No MAE
@@ -193,14 +193,14 @@ data = reshape(condMAEDir(:,:,2), [size(condMAEDir(:,:,2),1)*size(condMAEDir(:,:
 tbl = table(subjectsIdx', data, contrasts, phantoms,'VariableNames',{'SubjectIndex','Response','Contrast','Phantom'});
 lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|SubjectIndex)+(Phantom-1|SubjectIndex)'); %
 
-[pVal, F, R] = coefTest(lme);
+[pVal, F, DF1, DF2] = coefTest(lme);
 % 
 % %% opposite
 data = reshape(condMAEDir(:,:,3), [size(condMAEDir(:,:,3),1)*size(condMAEDir(:,:,3),2),1]);
 tbl = table(subjectsIdx', data, contrasts, phantoms,'VariableNames',{'SubjectIndex','Response','Contrast','Phantom'});
 lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|SubjectIndex)+(Phantom-1|SubjectIndex)'); %
 
-[pVal, F, R] = coefTest(lme);
+[pVal, F, DF1, DF2] = coefTest(lme);
 %% MAE Bias
 
 % respFreq = squeeze(sum(respDat,2));
@@ -288,7 +288,7 @@ data = reshape(condPercentBias, [size(condPercentBias,1)*size(condPercentBias,2)
 tbl = table(subjectsIdx, data, contrasts, phantoms,'VariableNames',{'SubjectIndex','Response','Contrast','Phantom'});
 lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|SubjectIndex)+(Phantom-1|SubjectIndex)'); %
 
-[pVal, F, R] = coefTest(lme);
+[pVal, F, DF1, DF2] = coefTest(lme);
 
 
 %% ttests

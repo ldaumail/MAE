@@ -1,7 +1,7 @@
 %% Analyze perceptual report
 %% Loic Daumail - 03/21/2024
 version = 'v13';
-names = {'sub-01','sub-02','sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07','sub-08','sub-09', 'sub-10', 'sub-11', 'sub-12', 'sub-13', 'sub-14', 'sub-15'};%
+names = {'sub-01','sub-02','sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07','sub-08','sub-09', 'sub-10', 'sub-11', 'sub-12', 'sub-13', 'sub-14', 'sub-15', 'sub-16', 'sub-17', 'sub-18','sub-19','sub-20'};%
 
 resps = nan(2,12,length(names));
 for i =1:length(names)
@@ -60,7 +60,7 @@ avgConditions = {sprintf('%s\\newline%s\\newline%s\n','Low Contrast','Phantom'),
 
 percepts = {''};
 
-ylab = {'Percept strength (avg score)'};
+ylab = {'Phantom vividness (average score)'};
 ylims = [0 5];
 leg = {'Low', 'Medium', 'High'};
 % singleBarLinePlotSEM(yvar',avgConditions, ylab, ylims)
@@ -91,7 +91,7 @@ data = reshape(yvar, [size(yvar,1)*size(yvar,2),1]);
 tbl = table(subjectsIdx, data, contrasts, phantoms,'VariableNames',{'SubjectIndex','Response','Contrast','Phantom'});
 lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|SubjectIndex)+(Phantom-1|SubjectIndex)'); %
 
-[pVal, F, R] = coefTest(lme);
+[pVal, F, DF1, DF2] = coefTest(lme);
 
 %% ttests
 
@@ -102,4 +102,10 @@ lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|Subject
 [ttestMean(4), Pval(4),~,Stats(4).stats] = ttest(yvar(:,4),yvar(:,5));%phantom control low vs phantom control med
 [ttestMean(5), Pval(5),~,Stats(5).stats] = ttest(yvar(:,4),yvar(:,6));%phantom control low vs phantom control high
 [ttestMean(6), Pval(6),~,Stats(6).stats] = ttest(yvar(:,5),yvar(:,6));%phantom control med vs phantom control high
+
+[ttestMean(1), Pval(7),~,Stats(7).stats] = ttest(yvar(:,1),yvar(:,4));%phantom low vs phantom control low
+[ttestMean(1), Pval(8),~,Stats(8).stats] = ttest(yvar(:,2),yvar(:,5));%phantom med vs phantom control med
+[ttestMean(1), Pval(9),~,Stats(9).stats] = ttest(yvar(:,3),yvar(:,6));%phantom high vs phantom control high
+
+
 

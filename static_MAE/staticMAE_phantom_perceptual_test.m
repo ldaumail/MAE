@@ -1,5 +1,5 @@
 version = 'v7';
-names = {'sub-01','sub-02','sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07', 'sub-08','sub-09', 'sub-10', 'sub-12', 'sub-13', 'sub-14', 'sub-15'}; %%'sub-11' <60% for all 3 full grating conditions
+names = {'sub-01','sub-02','sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07', 'sub-08','sub-09', 'sub-10', 'sub-12', 'sub-13', 'sub-14', 'sub-15', 'sub-16', 'sub-17', 'sub-18', 'sub-19', 'sub-20'};%'sub-11',
 
 resps = nan(2,12,length(names));
 for i =1:length(names)
@@ -68,7 +68,7 @@ avgConditions = {sprintf('%s\\newline%s\\newline%s\n','Low Contrast','Phantom'),
 
 percepts = {''};
 
-ylab = {'Percept strength (avg score)'};
+ylab = {'Phantom vividness (average score)'};
 ylims = [0 5];
 leg = {'Low', 'Medium', 'High'};
 % singleBarLinePlotSEM(yval,avgConditions, ylab, ylims)
@@ -98,7 +98,7 @@ data = reshape(yvar, [size(yvar,1)*size(yvar,2),1]);
 tbl = table(subjectsIdx, data, contrasts, phantoms,'VariableNames',{'SubjectIndex','Response','Contrast','Phantom'});
 lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|SubjectIndex)+(Phantom-1|SubjectIndex)'); %
 
-[pVal, F, R] = coefTest(lme);
+[pVal, F, DF1, DF2] = coefTest(lme);
 
 %% ttests
 
