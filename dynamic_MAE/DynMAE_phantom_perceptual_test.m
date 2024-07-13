@@ -47,6 +47,10 @@ end
 
 yvar = squeeze(nanmean([[resps(:,1,:);resps(:,2,:)],[resps(:,5,:);resps(:,6,:)],[resps(:,9,:);resps(:,10,:)],[resps(:,3,:);resps(:,4,:)],[resps(:,7,:);resps(:,8,:)],[resps(:,11,:);resps(:,12,:)]],1))';
 
+saveDir = "/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/curated_data";
+mkdir(saveDir);
+save(strcat(saveDir,"/subjective_ratings_dynamicMAE.mat"), "yvar")
+
 %% Plot
 yval = reshape(yvar,size(yvar,1),3, 2); % %subj resp x contrast level x cond 
 
@@ -67,6 +71,8 @@ leg = {'Low', 'Medium', 'High'};
 MAEBarPlotSEM(yval,{'Phantom','Phantom Control'}, ylab, ylims, leg)
 plotdir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/anal_plots/');
 mkdir(plotdir);
+%saveas(gcf,strcat(plotdir, sprintf('perceptual_report_dynamicMAE_line.png')));
+
 saveas(gcf,strcat(plotdir, sprintf('perceptual_report_dynamicMAE.svg')));
 
 
@@ -108,4 +114,27 @@ lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|Subject
 [ttestMean(1), Pval(9),~,Stats(9).stats] = ttest(yvar(:,3),yvar(:,6));%phantom high vs phantom control high
 
 
+%% Correlation with Bias and Percent bias
 
+loadDir = "/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/curated_data";
+percBias = load(strcat(loadDir,"/dynamic_MAE_percent_bias.mat"));
+
+maeDir = load(strcat(loadDir,"/dynamic_MAE_dir.mat"));
+
+subjRating = load(strcat(loadDir,"/subjective_ratings_dynamicMAE.mat"));
+
+condPercentBias = percBias.condPercentBias(:,4:end);
+maeBiasDir = maeDir.condMAEDir(:,4:end,3);
+phVividnessRating = subjRating.yvar;
+
+corrcoef(condPercentBias(:), phVividnessRating(:));
+corrcoef(maeBiasDir(:), phVividnessRating(:));
+
+phLowR = corrcoef(percBias.condPercentBias(:,4), subjRating.yvar(:,1)');
+phMedR = corrcoef(percBias.condPercentBias(:,5), subjRating.yvar(:,2)');
+phHighR = corrcoef(percBias.condPercentBias(:,6), subjRating.yvar(:,3)');
+
+
+phCtLowR = corrcoef(percBias.condPercentBias(:,7), subjRating.yvar(:,4)');
+phCtMedR = corrcoef(percBias.condPercentBias(:,8), subjRating.yvar(:,5)');
+phCtHighR = corrcoef(percBias.condPercentBias(:,9), subjRating.yvar(:,6)');

@@ -1,7 +1,17 @@
 %MAE Test stimulus with constant background luminance v13
-
-names = {'sub-01','sub-02','sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07','sub-08','sub-09', 'sub-10', 'sub-11', 'sub-12', 'sub-13', 'sub-14', 'sub-15', 'sub-16', 'sub-17', 'sub-18','sub-19','sub-20'};%
 version = 'v13';
+names = {'sub-01','sub-02','sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-08','sub-09',  'sub-11', 'sub-12', 'sub-13', 'sub-14', 'sub-15', 'sub-16', 'sub-17', 'sub-18','sub-19','sub-20'};%
+%'sub-07', rating below 1.75 in static MAE rating
+%'sub-10', rating below 1.75 in static MAE rating
+dataDir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/curated_data/');
+phVividnessRatings = load(strcat(dataDir, 'subjective_ratings_dynamicMAE.mat'));
+subjRatings = phVividnessRatings.yvar;
+
+
+keepSubjs = subjRatings([1:6,8:9,11:end],2) >= 1.75; %& subjRatings(:,2) > subjRatings(:,5);
+names = names(keepSubjs);
+
+
 responseType = [1, 2, 3];
 respFreq = nan(length(responseType), 18, length(names));
 
@@ -139,12 +149,12 @@ ylims = flip([0 50; 0 50; 50 100]);
 groupsBarPlotSEM2(yvar2,conds, contLevel, percepts, ylab,ylims)
  plotdir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/anal_plots/');
 mkdir(plotdir);
- saveas(gcf,strcat(plotdir, sprintf('proportion_percepts_same_opposite_%s_group_subplot.svg', version)));
+ saveas(gcf,strcat(plotdir, sprintf('proportion_percepts_same_opposite_%s_group_subplot_strong_vividness.svg', version)));
 
 %%
 saveDir = "/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/curated_data";
 mkdir(saveDir);
-save(strcat(saveDir,"/dynamic_MAE_dir.mat"), "condMAEDir")
+save(strcat(saveDir,"/dynamic_MAE_dir_strong_vividness.mat"), "condMAEDir")
 
 %% stats
 %% Same
@@ -399,12 +409,12 @@ MAEBarPlotSEM(yvar,conds, ylab, ylims, contLevel)
 % singleBarDotPlotSEM3(yvar,avgConditions, {'bias'}, ylab, ylims);
  plotdir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/anal_plots/');
 mkdir(plotdir);
-saveas(gcf,strcat(plotdir, sprintf('dynamicMAE_subtract_percent_bias_%s.svg', version)));
+saveas(gcf,strcat(plotdir, sprintf('dynamicMAE_subtract_percent_bias_%s_strong_vividness.svg', version)));
 
 %% stats
 saveDir = "/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/curated_data";
 mkdir(saveDir);
-save(strcat(saveDir,"/dynamic_MAE_percent_bias.mat"), "condPercentBias")
+save(strcat(saveDir,"/dynamic_MAE_percent_bias_strong_vividness.mat"), "condPercentBias")
 
 yvar = condPercentBias;
 
@@ -420,6 +430,9 @@ yvar = condPercentBias;
 [ttestMean(8), Pval(8),~,Stats(8).stats] = ttest(yvar(:,7),yvar(:,9));%phantom control low vs phantom control high
 [ttestMean(9), Pval(9),~,Stats(9).stats] = ttest(yvar(:,8),yvar(:,9));%phantom control med vs phantom control high
 
+[ttestMean(10), Pval(10),~,Stats(10).stats] = ttest(yvar(:,4),yvar(:,7));%phantom low vs phantom control low
+[ttestMean(11), Pval(11),~,Stats(11).stats] = ttest(yvar(:,5),yvar(:,8));%phantom med vs phantom control med
+[ttestMean(12), Pval(12),~,Stats(12).stats] = ttest(yvar(:,6),yvar(:,9));%phantom high vs phantom control high
 %% Inducer type vs contrast interaction
 
 phcond = {'Full','Full','Full','Phantom','Phantom','Phantom','PhantomControl','PhantomControl','PhantomControl'};

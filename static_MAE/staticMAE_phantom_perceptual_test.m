@@ -1,5 +1,5 @@
 version = 'v7';
-names = {'sub-01','sub-02','sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07', 'sub-08','sub-09', 'sub-10', 'sub-12', 'sub-13', 'sub-14', 'sub-15', 'sub-16', 'sub-17', 'sub-18', 'sub-19', 'sub-20'};%'sub-11',
+names = {'sub-01','sub-02','sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07', 'sub-08','sub-09', 'sub-10', 'sub-12', 'sub-13',  'sub-15', 'sub-16', 'sub-17', 'sub-18', 'sub-19', 'sub-20'};%'sub-11','sub-14',
 
 resps = nan(2,12,length(names));
 for i =1:length(names)
@@ -55,6 +55,10 @@ end
 
 yvar = squeeze(nanmean([[resps(:,1,:);resps(:,2,:)],[resps(:,5,:);resps(:,6,:)],[resps(:,9,:);resps(:,10,:)],[resps(:,3,:);resps(:,4,:)],[resps(:,7,:);resps(:,8,:)],[resps(:,11,:);resps(:,12,:)]],1))';
 
+saveDir = "/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/curated_data";
+mkdir(saveDir);
+save(strcat(saveDir,"/subjective_ratings_staticMAE.mat"), "yvar")
+
 %% Plot
 yval = reshape(yvar,size(yvar,1),3, 2); % %subj resp x contrast level x cond 
 
@@ -71,11 +75,80 @@ percepts = {''};
 ylab = {'Phantom vividness (average score)'};
 ylims = [0 5];
 leg = {'Low', 'Medium', 'High'};
-% singleBarLinePlotSEM(yval,avgConditions, ylab, ylims)
+% singleBarLinePlotSEM(yvar',avgConditions, ylab, ylims)
 MAEBarPlotSEM(yval,{'Phantom','Phantom Control'}, ylab, ylims, leg)
 plotdir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/anal_plots/');
 mkdir(plotdir);
+%saveas(gcf,strcat(plotdir, sprintf('perceptual_report_staticMAE_line.png')));
 saveas(gcf,strcat(plotdir, sprintf('perceptual_report_staticMAE.svg')));
+
+%%
+% yval = reshape(yvar,size(yvar,1),3, 2); % %subj resp x contrast level x cond 
+
+avgConditions = {sprintf('%s\\newline%s\\newline%s\n','Low Contrast','Phantom'),  ...
+%     sprintf('%s\\newline%s\\newline%s\n','Medium Contrast','Phantom')...
+%     sprintf('%s\\newline%s\\newline%s\n','High Contrast','Phantom')...
+    sprintf('%s\\newline%s\\newline%s\n','Low Contrast', 'Phantom Control'),  ...
+%     sprintf('%s\\newline%s\\newline%s\n','Medium Contrast','Phantom Control')...
+%     sprintf('%s\\newline%s\\newline%s\n','High Contrast','Phantom Control')...
+   };
+
+percepts = {''};
+
+ylab = {'Phantom vividness (average score)'};
+ylims = [0 5];
+% leg = {'Low', 'Medium', 'High'};
+yval = yvar(:,[1,4]);
+singleBarLinePlotSEM(yval',avgConditions, ylab, ylims)
+
+plotdir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/anal_plots/');
+mkdir(plotdir);
+
+saveas(gcf,strcat(plotdir, sprintf('perceptual_report_lowct_staticMAE.png')));
+%% Medium contrast
+avgConditions = {%sprintf('%s\\newline%s\\newline%s\n','Low Contrast','Phantom'),  ...
+     sprintf('%s\\newline%s\\newline%s\n','Medium Contrast','Phantom')...
+%     sprintf('%s\\newline%s\\newline%s\n','High Contrast','Phantom')...
+%    sprintf('%s\\newline%s\\newline%s\n','Low Contrast', 'Phantom Control'),  ...
+     sprintf('%s\\newline%s\\newline%s\n','Medium Contrast','Phantom Control')...
+%     sprintf('%s\\newline%s\\newline%s\n','High Contrast','Phantom Control')...
+   };
+
+percepts = {''};
+
+ylab = {'Phantom vividness (average score)'};
+ylims = [0 5];
+% leg = {'Low', 'Medium', 'High'};
+yval = yvar(:,[2,5]);
+singleBarLinePlotSEM(yval',avgConditions, ylab, ylims)
+
+plotdir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/anal_plots/');
+mkdir(plotdir);
+
+saveas(gcf,strcat(plotdir, sprintf('perceptual_report_medct_staticMAE.png')));
+
+%% High contrast
+avgConditions = {%sprintf('%s\\newline%s\\newline%s\n','Low Contrast','Phantom'),  ...
+%     sprintf('%s\\newline%s\\newline%s\n','Medium Contrast','Phantom')...
+     sprintf('%s\\newline%s\\newline%s\n','High Contrast','Phantom')...
+%    sprintf('%s\\newline%s\\newline%s\n','Low Contrast', 'Phantom Control'),  ...
+%     sprintf('%s\\newline%s\\newline%s\n','Medium Contrast','Phantom Control')...
+     sprintf('%s\\newline%s\\newline%s\n','High Contrast','Phantom Control')...
+   };
+
+percepts = {''};
+
+ylab = {'Phantom vividness (average score)'};
+ylims = [0 5];
+% leg = {'Low', 'Medium', 'High'};
+yval = yvar(:,[3,6]);
+singleBarLinePlotSEM(yval',avgConditions, ylab, ylims)
+
+plotdir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/anal_plots/');
+mkdir(plotdir);
+
+saveas(gcf,strcat(plotdir, sprintf('perceptual_report_highct_staticMAE.png')));
+
 
 %% Stats
 
@@ -110,4 +183,18 @@ lme = fitlme(tbl,'Response~Contrast*Phantom+(1|SubjectIndex)+(Contrast-1|Subject
 [ttestMean(5), Pval(5),~,Stats(5).stats] = ttest(yvar(:,4),yvar(:,6));%phantom control low vs phantom control high
 [ttestMean(6), Pval(6),~,Stats(6).stats] = ttest(yvar(:,5),yvar(:,6));%phantom control med vs phantom control high
 
+%% %% Correlation with Bias and  Percent bias
 
+loadDir = "/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/curated_data";
+percBias = load(strcat(loadDir,"/static_MAE_percent_bias.mat"));
+
+maeDir = load(strcat(loadDir,"/static_MAE_dir.mat"));
+
+subjRating = load(strcat(loadDir,"/subjective_ratings_staticMAE.mat"));
+
+condPercentBias = percBias.condPercentBias(:,4:end);
+maeBiasDir = maeDir.condMAEDir(:,4:end,3);
+phVividnessRating = subjRating.yvar;
+
+corrcoef(condPercentBias(:), phVividnessRating(:));
+corrcoef(maeBiasDir(:), phVividnessRating(:));
