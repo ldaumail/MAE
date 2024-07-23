@@ -66,7 +66,7 @@ ex.stim.gapSizeDeg = 2.6;
 ex.stim.distFromFixDeg = (ex.stim.gapSizeDeg+ex.stim.gaborHDeg)/2;  %each grating center deg horizontal away from fixation (grating center 6 deg away)
 
 ex.stim.backgroundLum = [60 60 60];
-ex.stim.contrast = [0.03 0.03];
+ex.stim.contrast = [0.0375 0.0375];
 ex.stim.contrastOffset = [(ex.stim.backgroundLum(1)./255)./(1-ex.stim.contrast(1)), ex.stim.backgroundLum(1)./255];%+ex.stim.contrast/2;
 ex.stim.luminanceRange = 2*ex.stim.contrast.*ex.stim.contrastOffset;
 ex.stim.contrastMultiplicator = ex.stim.luminanceRange./2;  % for sine wave

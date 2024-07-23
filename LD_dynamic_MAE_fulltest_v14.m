@@ -59,7 +59,7 @@ ex.stim.gapSizeDeg = 2.6;
 ex.stim.distFromFixDeg = (ex.stim.gapSizeDeg+ex.stim.gaborHDeg)/2;  %each grating center deg horizontal away from fixation (grating center 6 deg away)
 
 ex.stim.backgroundLum = [60 60 60];
-ex.stim.contrast = [0.03];
+ex.stim.contrast = [0.0375];
 ex.stim.contrastOffset = [(ex.stim.backgroundLum(1)./255)./(1-ex.stim.contrast(1))];%+ex.stim.contrast/2;
 ex.stim.luminanceRange = 2*ex.stim.contrast.*ex.stim.contrastOffset;
 ex.stim.contrastMultiplicator = ex.stim.luminanceRange./2;  % for sine wave
@@ -86,7 +86,7 @@ ex.stim.dphase = ex.stim.motionRate/ex.flipsPerSec; %degrees per flip
 
 %%%% Test stimulus: counterphasing grating
 ex.test.contrastOffset = ex.stim.backgroundLum(1,1)./255;% 
-ex.test.contrast = 0.03;
+ex.test.contrast = 0.0375;
 ex.test.luminanceRange = 2*ex.test.contrast*ex.test.contrastOffset;%0.1; %linspace(0.01,0.20,10);%[0.05, 0.10, 0.15];                                                 % in %, maybe?? %here the number of stimulus contrast levels is the number of different conditions
 ex.test.contrastMultiplicator = ex.test.luminanceRange/2;  % for sine wave 0.5 = 100% contrast, 0.2 = 40%
 ex.test.gaborHDeg = (2/3)*ex.stim.gapSizeDeg;                                                  % in degrees of visual angle

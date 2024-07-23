@@ -59,8 +59,8 @@ ex.stim.gapSizeDeg = 2.6;
 ex.stim.distFromFixDeg = (ex.stim.gapSizeDeg+ex.stim.gaborHDeg)/2;  %each grating center deg horizontal away from fixation (grating center 6 deg away)
 
 ex.stim.backgroundLum = [60 60 60];
-ex.stim.contrast = [0.03 0.03];
-ex.stim.contrastOffset = [(ex.stim.backgroundLum(1)./255)./(1-ex.stim.contrast(1)), ex.stim.backgroundLum(1)./255];%+ex.stim.contrast/2;
+ex.stim.contrast = [0.0375 0.0375 0.0375];
+ex.stim.contrastOffset = [(ex.stim.backgroundLum(1)./255)./(1-ex.stim.contrast(1)), ex.stim.backgroundLum(1)./255, (ex.stim.backgroundLum(1)./255)./(1-ex.stim.contrast(1))];%+ex.stim.contrast/2;
 ex.stim.luminanceRange = 2*ex.stim.contrast.*ex.stim.contrastOffset;
 ex.stim.contrastMultiplicator = ex.stim.luminanceRange./2;  % for sine wave
 
@@ -86,7 +86,7 @@ ex.stim.dphase = ex.stim.motionRate/ex.flipsPerSec; %degrees per flip
 
 %%%% Test stimulus: counterphasing grating
 ex.test.contrastOffset = ex.stim.backgroundLum(1,1)./255;% 
-ex.test.contrast = 0.03;
+ex.test.contrast = 0.0375;
 ex.test.luminanceRange = 2*ex.test.contrast*ex.test.contrastOffset;%0.1; %linspace(0.01,0.20,10);%[0.05, 0.10, 0.15];                                                 % in %, maybe?? %here the number of stimulus contrast levels is the number of different conditions
 ex.test.contrastMultiplicator = ex.test.luminanceRange/2;  % for sine wave 0.5 = 100% contrast, 0.2 = 40%
 ex.test.gaborHDeg = (2/3)*ex.stim.gapSizeDeg;                                                  % in degrees of visual angle
@@ -109,7 +109,7 @@ ex.horiLineWdeg = 0.45;
 
 %%%% conditions & layout (across blocks scale)
 
-ex.conds = {'LowContPhRight','LowContPhLeft','LowContPhCtRight','LowContPhCtLeft'}; 
+ex.conds = {'LowContPhRight','LowContPhLeft','LowContPhCtRight','LowContPhCtLeft','vLowContFullRight','vLowContFullLeft'}; 
 ex.repsPerRun = repmat(12,length(ex.conds),1);              % repetitions of each condition per run
 condIdx = 1:length(ex.conds); %[1,4,7]; %conditions we are interested to keep
 ex.conds = ex.conds(condIdx);
@@ -251,7 +251,7 @@ ex.gaborWidth = round(ex.stim.gaborWDeg*ex.ppd);                 % in pixels, th
 ex.rawGaborHeight = ex.gaborHeight;
 ex.rawGaborWidth = ex.gaborWidth;
 ex.stim.distFromFix = round(ex.stim.distFromFixDeg*ex.ppd);
-
+ex.stim.gapSize = round(ex.stim.gapSizeDeg*ex.ppd);
 %%%% scale the test params for the screen
 ex.probeHeight = round(ex.test.gaborHDeg*ex.ppd);                 % in pixels, the size of our objects
 ex.probeWidth = round(ex.test.gaborWDeg*ex.ppd);                 % in pixels, the size of our objects
@@ -289,7 +289,21 @@ end
 %check luminances ranges
 % minval = min(squeeze(ex.rectSWave(1,1,1,:,:)),[],'all');
 % maxval = max(squeeze(ex.rectSWave(1,1,1,:,:)),[],'all');
+%% Create "Full" grating condition
 
+ex.fullSWave = nan(ex.stim.gapSize,ex.rawGaborWidth,length(ex.test.oscillation1),nconds);
+ex.fullSWaveID = nan(length(ex.test.oscillation1),nconds);
+clear c r
+
+for l = 1:length(ex.stim.contrastMultiplicator)
+    for f =1:length(ex.test.oscillation1)
+        phase = ex.stim.phases(l,f);
+        ex.fullSWave(:,:,f,l) = makeSineGrating(ex.stim.gapSize,ex.rawGaborWidth,ex.stim.spatialFreqDeg,...
+            ex.stim.orientation,phase,ex.stim.contrastOffset(l),ex.stim.contrastMultiplicator(l),...
+            ex.ppd);
+        ex.fullSWaveID(f,l) = Screen('MakeTexture', w, squeeze(ex.fullSWave(:,:,f,l)));
+    end
+end
 %% create dynamic grating image as a test for other eye
 
 % phase = repmat((0:360/60:360-360/60),1,ex.testLength);
@@ -398,18 +412,32 @@ for c = 1:length(ex.condShuffle)
         if nnz(find(ex.longFormStimOnSecs(n)))
             ex.rectLRect =  CenterRectOnPoint([0 0 ex.rawGaborWidth ex.rawGaborHeight],xL,yL);
             ex.rectRRect =  CenterRectOnPoint([0 0 ex.rawGaborWidth ex.rawGaborHeight],xR,yR);
-            
-            % stim
-            if contains(condName, 'Right')
-                Screen('DrawTexture', w, ex.rectSWaveID(f,l),[],ex.rectLRect);
-                Screen('DrawTexture', w, ex.rectSWaveID(f,l),[],ex.rectRRect);
-                
-            elseif contains(condName, 'Left')
-                Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectLRect);
-                Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectRRect);
-                
+            ex.fullRect =  CenterRectOnPoint([0 0 ex.rawGaborWidth ex.stim.gapSize],xc,yc);
+            if contains(condName, 'Full')
+                % stim
+                if contains(condName, 'Right')
+                    Screen('DrawTexture', w, ex.rectSWaveID(f,l),[],ex.rectLRect);
+                    Screen('DrawTexture', w, ex.rectSWaveID(f,l),[],ex.rectRRect);
+                    Screen('DrawTexture', w, ex.fullSWaveID(f,l),[],ex.fullRect);
+                    
+                elseif contains(condName, 'Left')
+                    Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectLRect);
+                    Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectRRect);
+                    Screen('DrawTexture', w, ex.fullSWaveID(end-(f-1),l),[],ex.fullRect);
+                    
+                end
+            else
+                % stim
+                if contains(condName, 'Right')
+                    Screen('DrawTexture', w, ex.rectSWaveID(f,l),[],ex.rectLRect);
+                    Screen('DrawTexture', w, ex.rectSWaveID(f,l),[],ex.rectRRect);
+                    
+                elseif contains(condName, 'Left')
+                    Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectLRect);
+                    Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectRRect);
+                    
+                end
             end
-            
             %             Screen('DrawTexture',w,ph1LPaperture);
             
         end
@@ -445,12 +473,12 @@ for c = 1:length(ex.condShuffle)
         
         if length(ex.longFormBlocks(1:n))/60 == ex.blockLength+ex.testLength && c ~= length(ex.condShuffle) %(cnt/2 == 1 && GetSecs-time >= ex.blockLength+ex.testLength) && c ~= length(ex.condShuffle)
             WaitSecs(ex.ITI1);
-           if mod(c,10)
+            if mod(c,10)
                 DrawFormattedText(w,'Press Space whenever \n\n you feel ready \n\n for the next trial',(4/5)*xc, yc/2,[0 0 0]); %left instruction
             else
                 DrawFormattedText(w,sprintf('Press Space whenever \n\n you feel ready \n\n for trial %d / %d', c+1, length(ex.condShuffle)),(4/5)*xc, yc/2,[0 0 0]); %left instruction
-           end
-           %% Fixation
+            end
+            %% Fixation
             %             Screen('DrawDots', w, [xc yc], ex.fixSize, [255 255 255], [], 2);
             Screen('DrawLines', w, [xline, xline; ylineBot, ylineTop], ex.lineW, [30 30 30]);
             Screen('DrawLines', w, [xhorilinel, xhoriliner; yhoriline, yhoriline],ex.lineW, [30 30 30]);
