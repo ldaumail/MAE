@@ -110,7 +110,7 @@ ex.horiLineWdeg = 0.45;
 %%%% conditions & layout (across blocks scale)
 
 ex.conds = {'LowContPhRight','LowContPhLeft','LowContPhCtRight','LowContPhCtLeft','vLowContFullRight','vLowContFullLeft'}; 
-ex.repsPerRun = repmat(12,length(ex.conds),1);              % repetitions of each condition per run
+ex.repsPerRun = repmat(12,length(ex.conds),1);   %repmat(12,length(ex.conds),1);              % repetitions of each condition per run
 condIdx = 1:length(ex.conds); %[1,4,7]; %conditions we are interested to keep
 ex.conds = ex.conds(condIdx);
 ex.repsPerRun = ex.repsPerRun(condIdx);
@@ -471,7 +471,7 @@ for c = 1:length(ex.condShuffle)
         end
         
         
-        if length(ex.longFormBlocks(1:n))/60 == ex.blockLength+ex.testLength && c ~= length(ex.condShuffle) %(cnt/2 == 1 && GetSecs-time >= ex.blockLength+ex.testLength) && c ~= length(ex.condShuffle)
+        if length(ex.longFormBlocks(1:n))/60 == ex.blockLength+ex.testLength %&& c ~= length(ex.condShuffle) %(cnt/2 == 1 && GetSecs-time >= ex.blockLength+ex.testLength) && c ~= length(ex.condShuffle)
             WaitSecs(ex.ITI1);
             if mod(c,10)
                 DrawFormattedText(w,'Press Space whenever \n\n you feel ready \n\n for the next trial',(4/5)*xc, yc/2,[0 0 0]); %left instruction
