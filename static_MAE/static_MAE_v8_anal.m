@@ -1,11 +1,11 @@
 %Loic Daumail
 
 
-names = {'sub-01','sub-02','sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07', 'sub-08','sub-09', 'sub-10','sub-11', 'sub-12', 'sub-13', 'sub-14', 'sub-15', 'sub-16', 'sub-17', 'sub-18', 'sub-19', 'sub-20'};%'sub-11',
-version = 'v7';
+names = {'sub-01','sub-02','sub-03', 'sub-04','sub-05'};%
+version = 'v8';
 responseType = [1, 2, 3];
-respFreq = nan(length(responseType), 18, length(names));
-respDur = nan(length(responseType),3, 18, length(names));
+respFreq = nan(length(responseType), 6, length(names));
+respDur = nan(length(responseType),3, 6, length(names));
 % gapSize = [];
 for i =1:length(names)
     name = names{i};
@@ -107,19 +107,19 @@ ylab = {'Proportion of occurence of each percept (%)'};
 contLevel = {'Low', 'Medium', 'High'};
 conds = {'Full Grating','Phantom','Phantom Control'};
 % condMAEDir is subjs * all conds * respType here
-condMAEDir = [yvar(:,3,:), yvar(:,6,:), yvar(:,9,:), yvar(:,1,:), yvar(:,4,:), yvar(:,7,:),  yvar(:,2,:), yvar(:,5,:), yvar(:,8,:)];
-% orderedConds = {'Full Low', 'Full Med', 'Full High', 'Phantom Low', 'Phantom Med', 'Phantom High',  'Phantom Control Low', 'Phantom Control Med', 'Phantom Control High'};
+condMAEDir = [yvar(:,3,:), yvar(:,1,:), yvar(:,2,:)];
+% orderedConds = {'Full Low', 'Phantom Low',  'Phantom Control Low'};
 
 %Exclude subjects with less than 60 percent MAE
-avgnanmean
+%avgMAE = nanmean(condMAEDir(:,1:3,3),2) < 60;
 
 
-yvar2 = flip(reshape(condMAEDir, length(names), length(contLevel), length(conds), length(responseType)),4);
+yvar2 = flip(condMAEDir,3);
 ylims = flip([0 105; 0 105; 0 105]);
-groupsBarPlotSEM2(yvar2,conds, contLevel, percepts, ylab,ylims)
+lowCtMAEBarPlotSEM2(yvar2,conds, percepts, ylab,ylims)
  plotdir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/anal_plots/');
 mkdir(plotdir);
- saveas(gcf,strcat(plotdir, sprintf('proportion_percepts_same_opposite_staticMAE_%s_group_subplot.svg', version)));
+ saveas(gcf,strcat(plotdir, sprintf('proportion_percepts_same_opposite_staticMAE_%s_group_subplot.png', version)));
 
  
  %%
@@ -135,8 +135,8 @@ ylab = {'Proportion of occurence of each percept (%)'};
 % contLevel = {'Low', 'Medium', 'High'};
 % conds = {'Full Grating','Phantom','Phantom Control'};
 % condMAEDir is subjs * all conds * respType here
-condMAEDir = [yvar(:,3,:), yvar(:,6,:), yvar(:,9,:), yvar(:,1,:), yvar(:,4,:), yvar(:,7,:),  yvar(:,2,:), yvar(:,5,:), yvar(:,8,:)];
-orderedConds = {'Full Low', 'Full Med', 'Full High', 'Phantom Low', 'Phantom Med', 'Phantom High',  'Phantom Control Low', 'Phantom Control Med', 'Phantom Control High'};
+condMAEDir = [yvar(:,3,:), yvar(:,1,:), yvar(:,2,:)];
+orderedConds = {'Full Grating','Phantom','Phantom Control'};
 
 
 %yvar2 = flip(reshape(condMAEDir, length(names), length(contLevel), length(conds), length(responseType)),4);
@@ -283,25 +283,25 @@ for i = 1:length(names)
     end
 end
 
-contLevel = {'Low', 'Medium', 'High'};
+contLevel = {'Low'};
 conds = {'Full Grating','Phantom','Phantom Control'};
 
-condPercentBias = [percentBias(:,3), percentBias(:,6), percentBias(:,9), percentBias(:,1), percentBias(:,4), percentBias(:,7),  percentBias(:,2), percentBias(:,5), percentBias(:,8)];
-orderedConds = {'Full Low', 'Full Med', 'Full High', 'Phantom Low', 'Phantom Med', 'Phantom High',  'Phantom Control Low', 'Phantom Control Med', 'Phantom Control High'};
+condPercentBias = [percentBias(:,3), percentBias(:,1), percentBias(:,2)];
 
-yvar = reshape(condPercentBias, length(names), length(contLevel),length(conds));
+yvar = condPercentBias;
 
 
 ylab = {'Percent bias (%)'};
 ylims = [0 100];
 
 %  singleBarLinePlotSEM(condPercentBias',orderedConds, ylab, [-50 100])%  singleBarPlot(yvar(:,1)',avgConditions, {'bias'}, ylab, ylims);
-MAEBarPlotSEM(yvar,conds, ylab, ylims, contLevel)
+
+MAEctBarPlotSEM(yvar,conds, ylab, ylims,contLevel)
 
 % singleBarDotPlotSEM3(yvar,conds, {'bias'}, ylab, ylims);
  plotdir = strcat('/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/anal_plots/');
 mkdir(plotdir);
-saveas(gcf,strcat(plotdir, sprintf('staticMAE_percent_bias_subtract_%s.svg', version)));
+saveas(gcf,strcat(plotdir, sprintf('staticMAE_percent_bias_subtract_%s.png', version)));
 
 %% Stats
 saveDir = "/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/curated_data";
@@ -432,7 +432,7 @@ saveas(gcf,strcat(plotdir, sprintf('staticMAE_MAE_duration_zeroaverage_%s.svg', 
 %% Stats
 saveDir = "/Users/loicdaumail/Documents/Research_MacBook/Tong_Lab/Projects/motion_after_effect/curated_data";
 mkdir(saveDir);
-save(strcat(saveDir,"/static_MAE_duration.mat"), "linearAvgRespDurs")
+save(strcat(saveDir,"/static_MAE_duration.mat"), "responseDurations")
 %% Inducer type vs contrast interaction
 
 phcond = {'Full','Full','Full','Phantom','Phantom','Phantom','PhantomControl','PhantomControl','PhantomControl'};
