@@ -60,9 +60,9 @@ ex.stim.gapSizeDeg = 2.6; %4;
 ex.stim.distFromFixDeg = (ex.stim.gaborHDeg+ex.stim.gapSizeDeg)/2;%3;%2; %1.5 %each grating edge 1.5 deg horizontal away from fixation (grating center 6 deg away)
 
 ex.stim.backgroundLum = [60 60 60];
-ex.stim.contrast = [0.075 0.075 0.075 0.15 0.15 0.15 0.60 0.60 0.60];
-ex.stim.contrastOffset = [(ex.stim.backgroundLum(1)./255)./(1-ex.stim.contrast(1)), ex.stim.backgroundLum(1)./255, (ex.stim.backgroundLum(1)./255)./(1-ex.stim.contrast(1)),(ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast(4)),...
-    ex.stim.backgroundLum(1)./255,(ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast(4)),(ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast(7)), ex.stim.backgroundLum(1)./255,(ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast(7))];%+ex.stim.contrast/2;
+ex.stim.contrast = [0.075 0.075 0.15 0.15 0.60 0.60];
+ex.stim.contrastOffset = [(ex.stim.backgroundLum(1)./255)./(1-ex.stim.contrast(1)), ex.stim.backgroundLum(1)./255,(ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast(3)),...
+    ex.stim.backgroundLum(1)./255,(ex.stim.backgroundLum(1,1)./255)./(1-ex.stim.contrast(5)), ex.stim.backgroundLum(1)./255];%+ex.stim.contrast/2;
 ex.stim.luminanceRange = 2*ex.stim.contrast.*ex.stim.contrastOffset;
 ex.stim.contrastMultiplicator = ex.stim.luminanceRange./2;  % for sine wave
 
@@ -75,7 +75,7 @@ ex.stim.contrast = (ex.stim.maxLum-ex.stim.minLum)./(ex.stim.maxLum+ex.stim.minL
 %%%% sine wave grating timing (within block scale)
 ex.initialFixation = 6;        % in seconds
 ex.finalFixation = 2;          % in seconds
-ex.blockLength = 45; %45; %120; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
+ex.blockLength = 3; %45; %ex.trialFixation+ ceil(ex.stimDur*ex.stimsPerBlock);           % in seconds
 ex.ITI2 = .5;% in seconds
 % ex.betweenBlocks = 2;          % in seconds
 ex.flipsPerSec = 60;  % 60;         % number of phase changes we want from the visual stimulus, and thus the number of times we want to change visual stimulation on the screen
@@ -173,8 +173,8 @@ Priority(9);
 %%%% open screen
 screen=max(Screen('Screens'));
 if debug
-    %[w, rect]=Screen('OpenWindow',screen,ex.backgroundColor,[],[],[],[],[],kPsychNeed32BPCFloat);
-    [w, rect]=Screen('OpenWindow',screen,ex.backgroundColor,[100 100 600 400],[],[],[],[],kPsychNeed32BPCFloat); %might need to switch 900 and 600 by 1600 and 1200 for room 425
+    [w, rect]=Screen('OpenWindow',screen,ex.backgroundColor,[],[],[],[],[],kPsychNeed32BPCFloat);
+    %[w, rect]=Screen('OpenWindow',screen,ex.backgroundColor,[100 100 600 400],[],[],[],[],kPsychNeed32BPCFloat); %might need to switch 900 and 600 by 1600 and 1200 for room 425
     
 else
     %[w, rect]=Screen('OpenWindow',screen,ex.backgroundColor,[100 100 600 400],[],[],[],[],kPsychNeed32BPCFloat); %might need to switch 900 and 600 by 1600 and 1200 for room 425
@@ -296,21 +296,6 @@ end
 %check luminances ranges
 % minval = min(squeeze(ex.rectSWave(1,1,1,:,:)),[],'all');
 % maxval = max(squeeze(ex.rectSWave(1,1,1,:,:)),[],'all');
-%% Create "Full" grating condition
-
-ex.fullSWave = nan(ex.stim.gapSize,ex.rawGaborWidth,length(ex.test.oscillation1),nconds);
-ex.fullSWaveID = nan(length(ex.test.oscillation1),nconds);
-clear c r
-
-for l = 1:length(ex.stim.contrastMultiplicator)
-    for f =1:length(ex.test.oscillation1)
-        phase = ex.stim.phases(l,f);
-        ex.fullSWave(:,:,f,l) = makeSineGrating(ex.stim.gapSize,ex.rawGaborWidth,ex.stim.spatialFreqDeg,...
-            ex.stim.orientation,phase,ex.stim.contrastOffset(l),ex.stim.contrastMultiplicator(l),...
-            ex.ppd);
-        ex.fullSWaveID(f,l) = Screen('MakeTexture', w, squeeze(ex.fullSWave(:,:,f,l)));
-    end
-end
 
 %% create dynamic grating image as a test for other eye
 spphase = 0;
@@ -427,15 +412,15 @@ for c = 1:length(ex.condShuffle)
             ex.bgRect = CenterRectOnPoint([0 0 ex.bg.iw ex.bg.ih], xc, yc);
             % Draw bg
             Screen('DrawTexture', w, ex.backgroundID,[], ex.bgRect);
-            
+            % Blank gap
+            ex.rectCRect =  CenterRectOnPoint([0 0 ex.rawGaborWidth ex.blbg.ih],xc, yc);
+            Screen('DrawTexture', w, ex.blankGapID,[],ex.rectCRect);
+            ex.rectLRect =  CenterRectOnPoint([0 0 ex.rawGaborWidth ex.rawGaborHeight],xL,yL);
+            ex.rectRRect =  CenterRectOnPoint([0 0 ex.rawGaborWidth ex.rawGaborHeight],xR,yR);
+
             if contains(condName, 'Sim') && (fix((n-mod(n,ex.flipsPerSec))/(ex.flipsPerSec*2)) - (n-mod(n,ex.flipsPerSec))/(ex.flipsPerSec*2) == 0)
-                % Blank gap
-                ex.rectCRect =  CenterRectOnPoint([0 0 ex.rawGaborWidth ex.rawGaborHeight],xc, yc);
-                Screen('DrawTexture', w, ex.blankGapID,[],ex.rectCRect);
-                
-                ex.rectLRect =  CenterRectOnPoint([0 0 ex.rawGaborWidth ex.rawGaborHeight],xL,yL);
-                ex.rectRRect =  CenterRectOnPoint([0 0 ex.rawGaborWidth ex.rawGaborHeight],xR,yR);
-                
+
+
                 % stim
                 if contains(condName, 'Right')
                     Screen('DrawTexture', w, ex.rectSWaveID(f,l),[],ex.rectLRect);
@@ -446,6 +431,26 @@ for c = 1:length(ex.condShuffle)
                     Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectRRect);
                     
                 end
+            elseif contains(condName, 'Alt')
+
+                 
+                % stim
+                if contains(condName, 'Right')
+                    if (fix((n-mod(n,ex.flipsPerSec))/(ex.flipsPerSec*2)) - (n-mod(n,ex.flipsPerSec))/(ex.flipsPerSec*2) == 0)
+                        Screen('DrawTexture', w, ex.rectSWaveID(f,l),[],ex.rectLRect);
+                    else
+                        Screen('DrawTexture', w, ex.rectSWaveID(f,l),[],ex.rectRRect);
+                    end
+
+                elseif contains(condName, 'Left')
+                    if (fix((n-mod(n,ex.flipsPerSec))/(ex.flipsPerSec*2)) - (n-mod(n,ex.flipsPerSec))/(ex.flipsPerSec*2) == 0)
+
+                        Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectLRect);
+                    else
+                        Screen('DrawTexture', w, ex.rectSWaveID(end-(f-1),l),[],ex.rectRRect);
+                    end
+                end
+
             end
             
         end
